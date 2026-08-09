@@ -1,0 +1,27 @@
+services:
+  db:
+    image: docker.io/library/postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: booking_user
+      POSTGRES_PASSWORD: booking_password
+      POSTGRES_DB: booking_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  db_test:
+    image: docker.io/library/postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: booking_test_user
+      POSTGRES_PASSWORD: booking_test_password
+      POSTGRES_DB: booking_test
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+
+volumes:
+  db_data:
