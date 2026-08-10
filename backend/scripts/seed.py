@@ -33,11 +33,22 @@ def run_seed():
                 locale="es-CL",
                 currency="CLP",
                 email="hola@estudionomada.cl",
+                phone="+56912345678",
+                address="Calle Valparaíso 123, Viña del Mar",
                 minimum_booking_notice_minutes=120,
                 booking_horizon_days=60,
                 slot_interval_minutes=15,
             )
-            .on_conflict_do_update(index_elements=["id"], set_={"name": "Estudio Nómada", "slug": "estudio-nomada"})
+            .on_conflict_do_update(
+                index_elements=["id"],
+                set_={
+                    "name": "Estudio Nómada",
+                    "slug": "estudio-nomada",
+                    "email": "hola@estudionomada.cl",
+                    "phone": "+56912345678",
+                    "address": "Calle Valparaíso 123, Viña del Mar",
+                },
+            )
         )
         session.execute(stmt)
 
@@ -49,14 +60,21 @@ def run_seed():
                 id=service_1_id,
                 business_id=business_id,
                 name="Corte de Cabello",
+                description="Corte personalizado con asesoría de estilo, lavado y peinado.",
                 duration_minutes=45,
                 price_amount=15000,
                 is_active=True,
                 sort_order=1,
-            )  # noqa: E501
+            )
             .on_conflict_do_update(
-                index_elements=["id"], set_={"name": "Corte de Cabello", "duration_minutes": 45, "price_amount": 15000}
-            )  # noqa: E501
+                index_elements=["id"],
+                set_={
+                    "name": "Corte de Cabello",
+                    "description": "Corte personalizado con asesoría de estilo, lavado y peinado.",
+                    "duration_minutes": 45,
+                    "price_amount": 15000,
+                },
+            )
         )
         session.execute(stmt)
 
@@ -67,14 +85,21 @@ def run_seed():
                 id=service_2_id,
                 business_id=business_id,
                 name="Barba Spa",
+                description="Perfilado de barba con toallas calientes y aceites hidratantes.",
                 duration_minutes=30,
                 price_amount=10000,
                 is_active=True,
                 sort_order=2,
-            )  # noqa: E501
+            )
             .on_conflict_do_update(
-                index_elements=["id"], set_={"name": "Barba Spa", "duration_minutes": 30, "price_amount": 10000}
-            )  # noqa: E501
+                index_elements=["id"],
+                set_={
+                    "name": "Barba Spa",
+                    "description": "Perfilado de barba con toallas calientes y aceites hidratantes.",
+                    "duration_minutes": 30,
+                    "price_amount": 10000,
+                },
+            )
         )
         session.execute(stmt)
 
@@ -82,16 +107,42 @@ def run_seed():
         provider_1_id = "00000000-0000-0000-0000-000000000201"
         stmt = (
             insert(Provider)
-            .values(id=provider_1_id, business_id=business_id, name="Camila Rojas", is_active=True, sort_order=1)
-            .on_conflict_do_update(index_elements=["id"], set_={"name": "Camila Rojas"})
+            .values(
+                id=provider_1_id,
+                business_id=business_id,
+                name="Camila Rojas",
+                bio="Especialista en cortes estructurados y textura natural con 8 años de experiencia.",
+                is_active=True,
+                sort_order=1,
+            )
+            .on_conflict_do_update(
+                index_elements=["id"],
+                set_={
+                    "name": "Camila Rojas",
+                    "bio": "Especialista en cortes estructurados y textura natural con 8 años de experiencia.",
+                },
+            )
         )
         session.execute(stmt)
 
         provider_2_id = "00000000-0000-0000-0000-000000000202"
         stmt = (
             insert(Provider)
-            .values(id=provider_2_id, business_id=business_id, name="Javier Pérez", is_active=True, sort_order=2)
-            .on_conflict_do_update(index_elements=["id"], set_={"name": "Javier Pérez"})
+            .values(
+                id=provider_2_id,
+                business_id=business_id,
+                name="Javier Pérez",
+                bio="Maestro barbero enfocado en perfilado tradicional y cuidado integral masculino.",
+                is_active=True,
+                sort_order=2,
+            )
+            .on_conflict_do_update(
+                index_elements=["id"],
+                set_={
+                    "name": "Javier Pérez",
+                    "bio": "Maestro barbero enfocado en perfilado tradicional y cuidado integral masculino.",
+                },
+            )
         )
         session.execute(stmt)
 
@@ -109,33 +160,46 @@ def run_seed():
         )
         session.execute(stmt)
 
-        # 5. Availability Rules
-        rules = [
-            {
-                "id": "00000000-0000-0000-0000-000000000301",
-                "business_id": business_id,
-                "provider_id": provider_1_id,
-                "weekday": 0,
-                "start_time": time(9, 0),
-                "end_time": time(14, 0),
-            },  # noqa: E501
-            {
-                "id": "00000000-0000-0000-0000-000000000302",
-                "business_id": business_id,
-                "provider_id": provider_1_id,
-                "weekday": 0,
-                "start_time": time(15, 0),
-                "end_time": time(18, 0),
-            },  # noqa: E501
-            {
-                "id": "00000000-0000-0000-0000-000000000303",
-                "business_id": business_id,
-                "provider_id": provider_2_id,
-                "weekday": 0,
-                "start_time": time(10, 0),
-                "end_time": time(19, 0),
-            },  # noqa: E501
-        ]
+        # 5. Availability Rules (Monday to Saturday, 0..5)
+        rules = []
+        rule_idx = 1
+        for weekday in range(6):  # Lunes (0) a Sábado (5)
+            # Camila: 09:00 - 14:00 & 15:00 - 18:00
+            rules.append(
+                {
+                    "id": f"00000000-0000-0000-0000-{rule_idx:012d}",
+                    "business_id": business_id,
+                    "provider_id": provider_1_id,
+                    "weekday": weekday,
+                    "start_time": time(9, 0),
+                    "end_time": time(14, 0),
+                }
+            )
+            rule_idx += 1
+            rules.append(
+                {
+                    "id": f"00000000-0000-0000-0000-{rule_idx:012d}",
+                    "business_id": business_id,
+                    "provider_id": provider_1_id,
+                    "weekday": weekday,
+                    "start_time": time(15, 0),
+                    "end_time": time(18, 0),
+                }
+            )
+            rule_idx += 1
+
+            # Javier: 10:00 - 19:00
+            rules.append(
+                {
+                    "id": f"00000000-0000-0000-0000-{rule_idx:012d}",
+                    "business_id": business_id,
+                    "provider_id": provider_2_id,
+                    "weekday": weekday,
+                    "start_time": time(10, 0),
+                    "end_time": time(19, 0),
+                }
+            )
+            rule_idx += 1
 
         for rule in rules:
             stmt = (
@@ -144,7 +208,7 @@ def run_seed():
                 .on_conflict_do_update(
                     index_elements=["id"],
                     set_={"start_time": rule["start_time"], "end_time": rule["end_time"], "weekday": rule["weekday"]},
-                )  # noqa: E501
+                )
             )
             session.execute(stmt)
 
