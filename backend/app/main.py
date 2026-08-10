@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.endpoints import availability
+from app.api.endpoints import availability, bookings
 from app.api.endpoints.availability import DomainError
 from app.core.config import settings
 
@@ -19,6 +19,7 @@ app.add_middleware(
 )
 
 app.include_router(availability.router, prefix="/api")
+app.include_router(bookings.router, prefix="/api")
 
 
 @app.exception_handler(DomainError)

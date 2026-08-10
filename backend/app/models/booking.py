@@ -48,6 +48,7 @@ class Booking(Base):
 
     public_reference = Column(String(64), nullable=False, unique=True)
     client_request_id = Column(UUID(as_uuid=True), nullable=True)
+    request_fingerprint = Column(String(64), nullable=True)
 
     customer_name = Column(String(120), nullable=False)
     customer_email = Column(String(254), nullable=False)

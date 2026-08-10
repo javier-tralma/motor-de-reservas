@@ -206,7 +206,8 @@ Los bloqueos sí pueden cruzar medianoche y abarcar varios días. Los solapamien
 | `service_id` | `uuid` | FK restrictiva a servicio del mismo negocio, no nulo |
 | `provider_id` | `uuid` | FK restrictiva a profesional del mismo negocio, no nulo |
 | `public_reference` | `varchar(64)` | no nulo, único, aleatorio y no secuencial |
-| `client_request_id` | `uuid` | nullable, idempotencia del comando |
+| `client_request_id` | `uuid` | nullable, idempotencia del comando, siempre generado para reservas públicas, puede ser nulo para otros flujos |
+| `request_fingerprint` | `varchar(64)` | nullable, hash SHA-256 en hexadecimal de campos semánticos |
 | `customer_name` | `varchar(120)` | no nulo |
 | `customer_email` | `varchar(254)` | no nulo |
 | `customer_phone` | `varchar(32)` | no nulo |
@@ -230,7 +231,7 @@ Los bloqueos sí pueden cruzar medianoche y abarcar varios días. Los solapamien
 
 Constraints e índices:
 
-- único `(business_id, client_request_id)` cuando `client_request_id IS NOT NULL`;
+- único `(business_id, client_request_id)` cuando `client_request_id IS NOT NULL`. Esta constraint previene creaciones concurrentes duplicadas; si falla, la capa de servicio inspecciona el registro existente, compara su `request_fingerprint` atómicamente, y devuelve la reserva (idempotencia) o un conflicto.
 - único `public_reference`;
 - índice `(business_id, starts_at)` para agenda;
 - índice `(business_id, provider_id, starts_at)` para calendario y disponibilidad;

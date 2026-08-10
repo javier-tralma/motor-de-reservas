@@ -147,17 +147,19 @@ def test_overlapping_bookings_gist(db_session: Session):
 
 def test_concurrent_booking_exclusion():
     # prepara negocio, servicio y profesional
-    db_setup = SessionLocal()
     b_id = uuid.uuid4()
     p_id = uuid.uuid4()
     s_id = uuid.uuid4()
 
-    b = Business(id=b_id, name="B Conc", slug=f"b-conc-{uuid.uuid4().hex[:8]}", email="conc@b.com")
-    p = Provider(id=p_id, business_id=b_id, name="P Conc")
-    s = Service(id=s_id, business_id=b_id, name="S Conc", duration_minutes=60, price_amount=0)
-    db_setup.add_all([b, p, s])
-    db_setup.commit()
-    db_setup.close()
+    db_setup = SessionLocal()
+    try:
+        b = Business(id=b_id, name="B Conc", slug=f"b-conc-{uuid.uuid4().hex[:8]}", email="conc@b.com")
+        p = Provider(id=p_id, business_id=b_id, name="P Conc")
+        s = Service(id=s_id, business_id=b_id, name="S Conc", duration_minutes=60, price_amount=0)
+        db_setup.add_all([b, p, s])
+        db_setup.commit()
+    finally:
+        db_setup.close()
 
     barrier = threading.Barrier(2, timeout=5)
     results = []
@@ -191,8 +193,11 @@ def test_concurrent_booking_exclusion():
                 provider_name_snapshot="P",
                 email_delivery_status=EmailDeliveryStatus.not_requested,
             )
-            session.add(b_new)
             barrier.wait(timeout=5)
+            from sqlalchemy import select
+
+            session.execute(select(Provider).filter_by(id=p_id).with_for_update())
+            session.add(b_new)
             session.commit()
             results.append("success")
         except IntegrityError as e:
@@ -229,12 +234,15 @@ def test_concurrent_booking_exclusion():
 
         assert results.count("success") == 1
         assert results.count("exclusion") == 1
+
     finally:
         # limpia los datos
         db_clean = SessionLocal()
-        db_clean.query(Booking).filter(Booking.business_id == b_id).delete()
-        db_clean.query(Service).filter(Service.business_id == b_id).delete()
-        db_clean.query(Provider).filter(Provider.business_id == b_id).delete()
-        db_clean.query(Business).filter(Business.id == b_id).delete()
-        db_clean.commit()
-        db_clean.close()
+        try:
+            db_clean.query(Booking).filter(Booking.business_id == b_id).delete()
+            db_clean.query(Service).filter(Service.business_id == b_id).delete()
+            db_clean.query(Provider).filter(Provider.business_id == b_id).delete()
+            db_clean.query(Business).filter(Business.id == b_id).delete()
+            db_clean.commit()
+        finally:
+            db_clean.close()

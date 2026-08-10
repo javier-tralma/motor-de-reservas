@@ -302,7 +302,7 @@ Reglas:
 - Incluir servicio, profesional, fecha, hora, negocio y contacto.
 - Presentar fecha y hora en `America/Santiago`.
 - Registrar éxito o fallo con identificador del proveedor, sin loguear el cuerpo ni datos personales completos.
-- Un fallo actualiza el estado de entrega a `failed` y genera visibilidad operativa; no cancela la reserva.
+- Un fallo en el envío captura la excepción, actualiza el estado de entrega a `failed`, loguea el error en `email_last_error_code` y permite que la petición retorne 201 exitosamente. Nunca hace rollback de la reserva que ya fue persistida.
 - Tests usan un fake determinista.
 
 P0 puede despachar en una tarea posterior a la respuesta si el hosting lo soporta, pero no debe fingir garantías durables. Una cola/outbox con reintentos pertenece a una decisión posterior.
