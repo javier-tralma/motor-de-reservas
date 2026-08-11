@@ -4,6 +4,12 @@ import { Home } from './features/public-booking/Home';
 import { Wizard } from './features/public-booking/Wizard';
 import { Confirmation } from './features/public-booking/Confirmation';
 
+import { AuthProvider } from './features/auth/AuthContext';
+import { LoginPage } from './features/auth/LoginPage';
+import { ProtectedRoute } from './features/auth/ProtectedRoute';
+import { AdminLayout } from './features/admin/AdminLayout';
+import { DashboardPage } from './features/admin/DashboardPage';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -18,13 +24,36 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/reservar" element={<Wizard />} />
           <Route path="/reservar/confirmacion/:publicReference" element={<Confirmation />} />
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin/login"
+            element={
+              <AuthProvider>
+                <LoginPage />
+              </AuthProvider>
+            }
+          />
+          <Route
+            element={
+              <AuthProvider>
+                <ProtectedRoute />
+              </AuthProvider>
+            }
+          >
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<DashboardPage />} />
+            </Route>
+          </Route>
         </Routes>
       </Router>
     </QueryClientProvider>
   );
 }
+
 
 export default App;

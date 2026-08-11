@@ -43,3 +43,29 @@ def test_validate_db_url_success():
         "postgresql://postgres:postgres@localhost:5432/booking_dev",
     )
     assert res == "postgresql+psycopg://postgres:postgres@localhost:5432/booking_test"
+
+
+def test_config_fails_early_production_empty_session_secret():
+    from app.core.config import Settings
+
+    with pytest.raises(ValueError, match="SESSION_SECRET must be set in production environment"):
+        Settings(
+            DATABASE_URL="postgresql://user:pass@localhost:5432/db",
+            BUSINESS_ID="00000000-0000-0000-0000-000000000000",
+            FRONTEND_URL="http://localhost:3000",
+            APP_ENV="production",
+            SESSION_SECRET="",
+        )
+
+
+def test_config_fails_early_invalid_ttl():
+    from app.core.config import Settings
+
+    with pytest.raises(ValueError, match="ADMIN_SESSION_TTL_HOURS must be greater than 0"):
+        Settings(
+            DATABASE_URL="postgresql://user:pass@localhost:5432/db",
+            BUSINESS_ID="00000000-0000-0000-0000-000000000000",
+            FRONTEND_URL="http://localhost:3000",
+            APP_ENV="development",
+            ADMIN_SESSION_TTL_HOURS=0,
+        )

@@ -13,6 +13,11 @@ from alembic import command
 
 load_dotenv()
 
+os.environ.setdefault("SESSION_SECRET", "test-session-secret-key-32-bytes-long")
+from app.core.config import settings  # noqa: E402
+
+settings.SESSION_SECRET = "test-session-secret-key-32-bytes-long"
+
 
 def validate_test_db_url(test_url_str: str, dev_url_str: str) -> str:
     if not test_url_str:

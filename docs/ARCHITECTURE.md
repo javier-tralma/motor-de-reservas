@@ -275,16 +275,15 @@ La API captura la violación conocida de exclusión y la traduce a `409 slot_una
 ## 10. Autenticación y seguridad
 
 - No existe registro público de administradores.
-- Crear el administrador inicial mediante seed o comando de gestión seguro.
-- Guardar solamente hash Argon2id, nunca contraseñas ni tokens en texto plano.
-- Preferir una sesión o access token corto en cookie `HttpOnly`, `Secure` en producción y `SameSite=Lax`; no guardar credenciales en `localStorage`.
-- Proteger operaciones mutables con política de origen/CSRF coherente con el despliegue.
-- CORS usa una allowlist explícita.
-- Aplicar rate limiting en login y creación pública en el borde o API antes de producción.
-- Normalizar email para búsqueda, pero conservar una versión de presentación si es necesario.
-- No revelar si un email administrativo existe.
-- Validar límites de longitud y rechazar HTML no requerido en notas.
-- Los secretos provienen del entorno y nunca se incluyen en logs o repositorio.
+- Crear el administrador inicial mediante comando de gestión seguro (`scripts/create_admin.py`).
+- **Estrategia de Sesiones**: Sesiones opacas revocables almacenadas en la tabla `admin_sessions` de PostgreSQL (ver [ADR 001](decisions/001-admin-session-auth.md)).
+- **Cookie**: Nombre `booking_admin_session`, flags `HttpOnly`, `SameSite=Lax`, `Path=/api/admin`, `Secure` (en producción). Expiración absoluta configurable (`ADMIN_SESSION_TTL_HOURS`, default 8 horas). No accesible desde Web Storage ni JavaScript.
+- **Seguridad de Tokens**: El token de sesión se genera con CSPRNG (`secrets.token_urlsafe(32)`). La base de datos guarda únicamente un HMAC-SHA-256 del token utilizando la clave secreta `SESSION_SECRET`.
+- **Contraseñas**: Hasheadas con Argon2id usando `pwdlib[argon2]`. Se utiliza un hash dummy para mitigar timing attacks si el correo no existe.
+- **Protección CSRF**: Las peticiones mutativas (`POST`, `PUT`, `PATCH`, `DELETE`) en la administración verifican la coincidencia estricta del encabezado `Origin` con `FRONTEND_URL`.
+- **CORS**: Usa allowlist explícita con `allow_credentials=True`.
+- **Protección de datos**: No revelar si un email administrativo existe (respuesta genérica `401 invalid_credentials`).
+
 
 ## 11. Email
 

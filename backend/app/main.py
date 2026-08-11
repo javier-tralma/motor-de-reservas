@@ -1,13 +1,16 @@
 import uuid
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.api.admin import auth as admin_auth
+from app.api.admin import dashboard as admin_dashboard
 from app.api.endpoints import availability, bookings, public
 from app.api.endpoints.availability import DomainError
 from app.core.config import settings
+from app.services.auth_service import AuthError
 
 app = FastAPI(title="Booking API")
 app.add_middleware(
@@ -21,10 +24,38 @@ app.add_middleware(
 app.include_router(public.router, prefix="/api")
 app.include_router(availability.router, prefix="/api")
 app.include_router(bookings.router, prefix="/api")
+app.include_router(admin_auth.router, prefix="/api/admin")
+app.include_router(admin_dashboard.router, prefix="/api/admin")
+
+
+@app.exception_handler(AuthError)
+async def auth_error_handler(request: Request, exc: AuthError):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": {"code": exc.code, "message": exc.message, "details": {}, "request_id": str(uuid.uuid4())}},
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    if isinstance(exc.detail, dict) and "code" in exc.detail:
+        code = exc.detail["code"]
+        message = exc.detail.get("message", "Error de servidor.")
+        details = exc.detail.get("details", {})
+    else:
+        code = f"http_{exc.status_code}"
+        message = str(exc.detail) if exc.detail else "Error en la petición."
+        details = {}
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": {"code": code, "message": message, "details": details, "request_id": str(uuid.uuid4())}},
+    )
 
 
 @app.exception_handler(DomainError)
 async def domain_error_handler(request: Request, exc: DomainError):
+
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": {"code": exc.code, "message": exc.message, "details": {}, "request_id": str(uuid.uuid4())}},

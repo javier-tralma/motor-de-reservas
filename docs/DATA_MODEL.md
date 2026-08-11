@@ -102,7 +102,26 @@ P0 no edita `timezone`, `locale` ni `currency` desde la UI. Cambiar zona horaria
 | `created_at` | `timestamptz` | no nulo |
 | `updated_at` | `timestamptz` | no nulo |
 
-Constraint único: `(business_id, normalized_email)`. Si se evita una columna `normalized_email`, usar un índice funcional documentado sobre `lower(email)`.
+Constraint único: `(business_id, email)`. Índice: `ix_admin_users_business_email` sobre `(business_id, lower(email))`.
+
+### 4.2.1 `admin_sessions`
+
+| Columna | Tipo | Reglas |
+|---|---|---|
+| `id` | `uuid` | PK |
+| `business_id` | `uuid` | FK a negocio, no nulo |
+| `admin_user_id` | `uuid` | FK a `admin_users (business_id, id)`, no nulo |
+| `token_hash` | `varchar(128)` | no nulo, único, HMAC-SHA-256 |
+| `expires_at` | `timestamptz` | no nulo |
+| `revoked_at` | `timestamptz` | nullable |
+| `created_at` | `timestamptz` | no nulo |
+
+Constraints e índices:
+- `ForeignKeyConstraint(["business_id", "admin_user_id"], ["admin_users.business_id", "admin_users.id"], ondelete="CASCADE")`
+- `UniqueConstraint("token_hash", name="uq_admin_sessions_token_hash")`
+- `Index("ix_admin_sessions_admin_user_revoked", "admin_user_id", "revoked_at")`
+- `Index("ix_admin_sessions_expires_at", "expires_at")`
+
 
 ### 4.3 `services`
 

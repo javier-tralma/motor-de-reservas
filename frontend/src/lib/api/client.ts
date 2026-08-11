@@ -36,8 +36,10 @@ export async function apiFetch<T>(
 
   const response = await fetch(url, {
     ...options,
+    credentials: 'include',
     headers,
   });
+
 
   const contentType = response.headers.get('content-type');
   const isJson = contentType && contentType.includes('application/json');
