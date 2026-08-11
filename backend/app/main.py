@@ -1,12 +1,15 @@
 import uuid
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.admin import auth as admin_auth
+from app.api.admin import bookings as admin_bookings
 from app.api.admin import dashboard as admin_dashboard
+from app.api.admin import providers as admin_providers
 from app.api.endpoints import availability, bookings, public
 from app.api.endpoints.availability import DomainError
 from app.core.config import settings
@@ -26,6 +29,8 @@ app.include_router(availability.router, prefix="/api")
 app.include_router(bookings.router, prefix="/api")
 app.include_router(admin_auth.router, prefix="/api/admin")
 app.include_router(admin_dashboard.router, prefix="/api/admin")
+app.include_router(admin_bookings.router, prefix="/api/admin")
+app.include_router(admin_providers.router, prefix="/api/admin")
 
 
 @app.exception_handler(AuthError)
@@ -70,7 +75,7 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
             "error": {
                 "code": "validation_error",
                 "message": "Invalid request parameters",
-                "details": exc.errors(),
+                "details": jsonable_encoder(exc.errors()),
                 "request_id": str(uuid.uuid4()),
             }
         },

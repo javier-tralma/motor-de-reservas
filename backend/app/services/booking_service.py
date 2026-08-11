@@ -3,7 +3,7 @@ import json
 import secrets
 import string
 import uuid
-from datetime import datetime
+from datetime import date, datetime, timezone
 from zoneinfo import ZoneInfo
 
 import psycopg
@@ -18,6 +18,7 @@ from app.models.business import Business
 from app.models.provider import Provider
 from app.models.service import Service
 from app.schemas.booking import BookingCreateRequest
+from app.schemas.booking_admin import AdminBookingDetail, AdminBookingListItem, AdminProviderListItem
 from app.services.availability_service import AvailabilityService
 
 
@@ -239,10 +240,176 @@ class BookingService:
             booking_update.email_last_error_code = email_result.error_code
 
             if email_result.status == EmailDeliveryStatus.sent:
-                from datetime import timezone
-
                 booking_update.email_sent_at = datetime.now(timezone.utc)
 
             self.db.commit()
         except Exception:
             self.db.rollback()
+
+    def get_admin_bookings(
+        self,
+        business_id: uuid.UUID,
+        target_date: date | None,
+        status_filter: BookingStatus | None,
+        provider_id: uuid.UUID | None,
+        now: datetime,
+    ) -> list[AdminBookingListItem]:
+        business = self.db.execute(select(Business).filter_by(id=business_id)).scalar_one_or_none()
+        if not business:
+            raise DomainError(code="business_not_found", message="Business not found", status_code=404)
+
+        if provider_id:
+            provider = self.db.execute(
+                select(Provider).filter_by(id=provider_id, business_id=business_id)
+            ).scalar_one_or_none()
+            if not provider:
+                return []
+
+        local_tz = ZoneInfo(business.timezone)
+        if target_date is None:
+            now_utc = now if now.tzinfo else now.replace(tzinfo=timezone.utc)
+            now_local = now_utc.astimezone(local_tz)
+            target_date = now_local.date()
+
+        from app.domain.time_utils import get_local_day_bounds_utc
+
+        start_utc, end_utc = get_local_day_bounds_utc(target_date, business.timezone)
+
+        query = select(Booking).filter(
+            Booking.business_id == business_id,
+            Booking.starts_at >= start_utc,
+            Booking.starts_at < end_utc,
+        )
+        if status_filter:
+            query = query.filter(Booking.status == status_filter)
+        if provider_id:
+            query = query.filter(Booking.provider_id == provider_id)
+
+        query = query.order_by(Booking.starts_at.asc())
+        bookings = self.db.execute(query).scalars().all()
+
+        items = []
+        for b in bookings:
+            starts_utc = b.starts_at if b.starts_at.tzinfo else b.starts_at.replace(tzinfo=timezone.utc)
+            ends_utc = b.ends_at if b.ends_at.tzinfo else b.ends_at.replace(tzinfo=timezone.utc)
+            items.append(
+                AdminBookingListItem(
+                    id=b.id,
+                    starts_at=starts_utc.astimezone(local_tz),
+                    ends_at=ends_utc.astimezone(local_tz),
+                    customer_name=b.customer_name,
+                    service_name_snapshot=b.service_name_snapshot,
+                    provider_name_snapshot=b.provider_name_snapshot,
+                    provider_id=b.provider_id,
+                    status=b.status,
+                    source=b.source,
+                )
+            )
+        return items
+
+    def get_admin_booking_detail(
+        self,
+        business_id: uuid.UUID,
+        booking_id: uuid.UUID,
+    ) -> AdminBookingDetail:
+        business = self.db.execute(select(Business).filter_by(id=business_id)).scalar_one_or_none()
+        if not business:
+            raise DomainError(code="business_not_found", message="Business not found", status_code=404)
+
+        booking = self.db.execute(
+            select(Booking).filter_by(id=booking_id, business_id=business_id)
+        ).scalar_one_or_none()
+
+        if not booking:
+            raise DomainError(code="booking_not_found", message="Booking not found", status_code=404)
+
+        local_tz = ZoneInfo(business.timezone)
+
+        def to_local(dt: datetime | None) -> datetime | None:
+            if dt is None:
+                return None
+            dt_utc = dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+            return dt_utc.astimezone(local_tz)
+
+        return AdminBookingDetail(
+            id=booking.id,
+            public_reference=booking.public_reference,
+            customer_name=booking.customer_name,
+            customer_email=booking.customer_email,
+            customer_phone=booking.customer_phone,
+            customer_notes=booking.customer_notes,
+            starts_at=to_local(booking.starts_at),
+            ends_at=to_local(booking.ends_at),
+            status=booking.status,
+            source=booking.source,
+            service_id=booking.service_id,
+            provider_id=booking.provider_id,
+            service_name_snapshot=booking.service_name_snapshot,
+            provider_name_snapshot=booking.provider_name_snapshot,
+            duration_minutes_snapshot=booking.duration_minutes_snapshot,
+            price_amount_snapshot=booking.price_amount_snapshot,
+            cancelled_at=to_local(booking.cancelled_at),
+            completed_at=to_local(booking.completed_at),
+            no_show_at=to_local(booking.no_show_at),
+            created_at=to_local(booking.created_at),
+            updated_at=to_local(booking.updated_at),
+        )
+
+    def update_booking_status(
+        self,
+        business_id: uuid.UUID,
+        booking_id: uuid.UUID,
+        new_status: BookingStatus,
+        now: datetime,
+    ) -> AdminBookingDetail:
+        business = self.db.execute(select(Business).filter_by(id=business_id)).scalar_one_or_none()
+        if not business:
+            raise DomainError(code="business_not_found", message="Business not found", status_code=404)
+
+        try:
+            booking = self.db.execute(
+                select(Booking).filter_by(id=booking_id, business_id=business_id).with_for_update()
+            ).scalar_one_or_none()
+
+            if not booking:
+                raise DomainError(code="booking_not_found", message="Booking not found", status_code=404)
+
+            if booking.status != BookingStatus.confirmed:
+                raise DomainError(
+                    code="invalid_status_transition",
+                    message=f"Cannot transition booking from {booking.status} to {new_status}",
+                    status_code=409,
+                )
+
+            now_utc = now if now.tzinfo else now.replace(tzinfo=timezone.utc)
+            booking.status = new_status
+            if new_status == BookingStatus.cancelled:
+                booking.cancelled_at = now_utc
+            elif new_status == BookingStatus.completed:
+                booking.completed_at = now_utc
+            elif new_status == BookingStatus.no_show:
+                booking.no_show_at = now_utc
+
+            self.db.commit()
+            self.db.refresh(booking)
+        except DomainError:
+            self.db.rollback()
+            raise
+        except Exception as e:
+            self.db.rollback()
+            raise DomainError(code="database_error", message="Failed to update booking status", status_code=500) from e
+
+        return self.get_admin_booking_detail(business_id=business_id, booking_id=booking_id)
+
+    def get_admin_providers(self, business_id: uuid.UUID) -> list[AdminProviderListItem]:
+        providers = (
+            self.db.execute(
+                select(Provider)
+                .filter_by(business_id=business_id)
+                .order_by(Provider.sort_order.asc(), Provider.name.asc())
+            )
+            .scalars()
+            .all()
+        )
+
+        return [AdminProviderListItem(id=p.id, name=p.name, is_active=p.is_active) for p in providers]

@@ -14,3 +14,10 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def resolve_migration_database_url(configured_url: str | None, default_url: str) -> str:
+    placeholder_url = "driver://user:pass@localhost/dbname"
+    if not configured_url or configured_url == placeholder_url:
+        return default_url
+    return configured_url

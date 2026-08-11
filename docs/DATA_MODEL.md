@@ -245,8 +245,10 @@ Los bloqueos sí pueden cruzar medianoche y abarcar varios días. Los solapamien
 | `email_last_error_code` | `varchar(80)` | nullable, sin cuerpo ni PII |
 | `cancelled_at` | `timestamptz` | nullable, coherente con estado |
 | `completed_at` | `timestamptz` | nullable, coherente con estado |
+| `no_show_at` | `timestamptz` | nullable, coherente con estado |
 | `created_at` | `timestamptz` | no nulo |
 | `updated_at` | `timestamptz` | no nulo |
+
 
 Constraints e índices:
 

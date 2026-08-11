@@ -25,11 +25,12 @@ export const AdminLayout: React.FC = () => {
   const navItems = [
     { label: 'Resumen', path: '/admin', active: true },
     { label: 'Calendario', path: '#', active: false },
-    { label: 'Reservas', path: '#', active: false },
+    { label: 'Reservas', path: '/admin/reservas', active: true },
     { label: 'Servicios', path: '#', active: false },
     { label: 'Profesionales', path: '#', active: false },
     { label: 'Horarios', path: '#', active: false },
   ];
+
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">

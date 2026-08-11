@@ -1,6 +1,13 @@
+from typing import Generic, TypeVar
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field
+
+T = TypeVar("T")
+
+
+class ResponseEnvelope(BaseModel, Generic[T]):
+    data: T
 
 
 class LoginRequest(BaseModel):

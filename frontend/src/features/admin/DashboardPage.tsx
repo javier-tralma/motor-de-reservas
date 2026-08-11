@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../auth/useAuth';
 import { getAdminDashboard, type BookingAgendaItem, type DashboardData } from '../../lib/api/admin';
 import { ApiError } from '../../lib/api/client';
+import { adminQueryKeys } from '../../lib/api/queryKeys';
 
 export const DashboardPage: React.FC = () => {
   const { user, business, handleUnauthorized } = useAuth();
@@ -15,9 +16,10 @@ export const DashboardPage: React.FC = () => {
     refetch,
     isFetching,
   } = useQuery<DashboardData, ApiError>({
-    queryKey: ['adminDashboard'],
+    queryKey: adminQueryKeys.dashboard(),
     queryFn: getAdminDashboard,
     staleTime: 30000,
+
     retry: (_failureCount, err) => {
       if (err?.status === 401) {
         handleUnauthorized();
