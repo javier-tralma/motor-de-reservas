@@ -11,6 +11,8 @@ import { AdminLayout } from './features/admin/AdminLayout';
 import { DashboardPage } from './features/admin/DashboardPage';
 import { BookingsListPage } from './features/admin/BookingsListPage';
 import { BookingDetailPage } from './features/admin/BookingDetailPage';
+import { ServicesPage } from './features/admin/ServicesPage';
+import { ProvidersPage } from './features/admin/ProvidersPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +53,8 @@ function App() {
               <Route path="/admin" element={<DashboardPage />} />
               <Route path="/admin/reservas" element={<BookingsListPage />} />
               <Route path="/admin/reservas/:bookingId" element={<BookingDetailPage />} />
+              <Route path="/admin/servicios" element={<ServicesPage />} />
+              <Route path="/admin/profesionales" element={<ProvidersPage />} />
             </Route>
           </Route>
         </Routes>
@@ -58,6 +62,7 @@ function App() {
     </QueryClientProvider>
   );
 }
+
 
 
 

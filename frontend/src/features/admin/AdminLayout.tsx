@@ -26,10 +26,11 @@ export const AdminLayout: React.FC = () => {
     { label: 'Resumen', path: '/admin', active: true },
     { label: 'Calendario', path: '#', active: false },
     { label: 'Reservas', path: '/admin/reservas', active: true },
-    { label: 'Servicios', path: '#', active: false },
-    { label: 'Profesionales', path: '#', active: false },
+    { label: 'Servicios', path: '/admin/servicios', active: true },
+    { label: 'Profesionales', path: '/admin/profesionales', active: true },
     { label: 'Horarios', path: '#', active: false },
   ];
+
 
 
   return (

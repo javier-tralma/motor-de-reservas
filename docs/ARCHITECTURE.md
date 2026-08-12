@@ -154,13 +154,15 @@ GET    /api/admin/bookings
 GET    /api/admin/bookings/{id}
 PATCH  /api/admin/bookings/{id}/status
 GET    /api/admin/providers
+GET    /api/admin/providers/{id}
+GET    /api/admin/providers/{id}/services
 GET    /api/admin/services
 POST   /api/admin/services
 PATCH  /api/admin/services/{id}
 POST   /api/admin/providers
 PATCH  /api/admin/providers/{id}
-
 PUT    /api/admin/providers/{id}/services
+
 GET    /api/admin/providers/{id}/availability-rules
 PUT    /api/admin/providers/{id}/availability-rules
 GET    /api/admin/time-off

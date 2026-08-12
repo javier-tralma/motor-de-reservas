@@ -10,4 +10,7 @@ export const adminQueryKeys = {
     ['admin', 'bookings', filters ?? {}] as const,
   bookingDetail: (bookingId: string) => ['admin', 'booking', bookingId] as const,
   providers: () => ['admin', 'providers'] as const,
+  services: () => ['admin', 'services'] as const,
+  providerDetail: (providerId: string) => ['admin', 'provider', providerId] as const,
+  providerServices: (providerId: string) => ['admin', 'provider', providerId, 'services'] as const,
 };

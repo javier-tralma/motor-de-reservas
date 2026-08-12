@@ -1,30 +1,92 @@
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.core.csrf import verify_origin
 from app.core.db import get_db
 from app.core.dependencies import get_current_admin
-from app.integrations.email.service import FakeEmailService
 from app.models.admin_user import AdminUser
 from app.schemas.admin import ResponseEnvelope
 from app.schemas.booking_admin import AdminProviderListItem
-from app.services.availability_service import AvailabilityService
-from app.services.booking_service import BookingService
+from app.schemas.catalog_admin import (
+    AdminProviderCreate,
+    AdminProviderDetail,
+    AdminProviderServicesDetail,
+    AdminProviderServicesReplace,
+    AdminProviderUpdate,
+)
+from app.services.catalog_service import CatalogService
 
 router = APIRouter(prefix="/providers", tags=["Admin Providers"])
 
 
-def get_booking_service(db: Annotated[Session, Depends(get_db)]) -> BookingService:
-    availability_service = AvailabilityService(db)
-    email_service = FakeEmailService()
-    return BookingService(db, availability_service, email_service)
+def get_catalog_service(db: Annotated[Session, Depends(get_db)]) -> CatalogService:
+    return CatalogService(db)
 
 
 @router.get("", response_model=ResponseEnvelope[list[AdminProviderListItem]])
 def list_admin_providers(
     current_admin: Annotated[AdminUser, Depends(get_current_admin)],
-    service: Annotated[BookingService, Depends(get_booking_service)],
+    service: Annotated[CatalogService, Depends(get_catalog_service)],
 ) -> ResponseEnvelope[list[AdminProviderListItem]]:
-    providers = service.get_admin_providers(business_id=current_admin.business_id)
+    providers = service.list_providers(business_id=current_admin.business_id)
     return ResponseEnvelope(data=providers)
+
+
+@router.get("/{provider_id}", response_model=ResponseEnvelope[AdminProviderDetail])
+def get_admin_provider_detail(
+    provider_id: uuid.UUID,
+    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    service: Annotated[CatalogService, Depends(get_catalog_service)],
+) -> ResponseEnvelope[AdminProviderDetail]:
+    detail = service.get_provider_detail(business_id=current_admin.business_id, provider_id=provider_id)
+    return ResponseEnvelope(data=detail)
+
+
+@router.post("", response_model=ResponseEnvelope[AdminProviderDetail], status_code=201)
+def create_admin_provider(
+    data: AdminProviderCreate,
+    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    service: Annotated[CatalogService, Depends(get_catalog_service)],
+    _: Annotated[None, Depends(verify_origin)],
+) -> ResponseEnvelope[AdminProviderDetail]:
+    created = service.create_provider(business_id=current_admin.business_id, data=data)
+    return ResponseEnvelope(data=created)
+
+
+@router.patch("/{provider_id}", response_model=ResponseEnvelope[AdminProviderDetail])
+def update_admin_provider(
+    provider_id: uuid.UUID,
+    data: AdminProviderUpdate,
+    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    service: Annotated[CatalogService, Depends(get_catalog_service)],
+    _: Annotated[None, Depends(verify_origin)],
+) -> ResponseEnvelope[AdminProviderDetail]:
+    updated = service.update_provider(business_id=current_admin.business_id, provider_id=provider_id, data=data)
+    return ResponseEnvelope(data=updated)
+
+
+@router.get("/{provider_id}/services", response_model=ResponseEnvelope[AdminProviderServicesDetail])
+def get_admin_provider_services(
+    provider_id: uuid.UUID,
+    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    service: Annotated[CatalogService, Depends(get_catalog_service)],
+) -> ResponseEnvelope[AdminProviderServicesDetail]:
+    detail = service.get_provider_services(business_id=current_admin.business_id, provider_id=provider_id)
+    return ResponseEnvelope(data=detail)
+
+
+@router.put("/{provider_id}/services", response_model=ResponseEnvelope[AdminProviderServicesDetail])
+def replace_admin_provider_services(
+    provider_id: uuid.UUID,
+    data: AdminProviderServicesReplace,
+    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    service: Annotated[CatalogService, Depends(get_catalog_service)],
+    _: Annotated[None, Depends(verify_origin)],
+) -> ResponseEnvelope[AdminProviderServicesDetail]:
+    replaced = service.replace_provider_services(
+        business_id=current_admin.business_id, provider_id=provider_id, service_ids=data.service_ids
+    )
+    return ResponseEnvelope(data=replaced)

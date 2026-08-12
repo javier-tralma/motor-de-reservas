@@ -153,3 +153,138 @@ export async function getAdminProviders(signal?: AbortSignal): Promise<AdminProv
     signal,
   });
 }
+
+export interface AdminServiceDetail {
+  id: string;
+  name: string;
+  description: string;
+  duration_minutes: number;
+  price_amount: number;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminServiceCreate {
+  name: string;
+  description?: string;
+  duration_minutes: number;
+  price_amount: number;
+  is_active?: boolean;
+  sort_order?: number;
+}
+
+export interface AdminServiceUpdate {
+  name?: string;
+  description?: string;
+  duration_minutes?: number;
+  price_amount?: number;
+  is_active?: boolean;
+  sort_order?: number;
+}
+
+export interface AdminProviderDetail {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  bio: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminProviderCreate {
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  bio?: string;
+  is_active?: boolean;
+  sort_order?: number;
+}
+
+export interface AdminProviderUpdate {
+  name?: string;
+  email?: string | null;
+  phone?: string | null;
+  bio?: string;
+  is_active?: boolean;
+  sort_order?: number;
+}
+
+export interface AdminProviderServicesDetail {
+  provider_id: string;
+  service_ids: string[];
+}
+
+export async function getAdminServices(signal?: AbortSignal): Promise<AdminServiceDetail[]> {
+  return apiFetch<AdminServiceDetail[]>('/admin/services', {
+    signal,
+  });
+}
+
+export async function createAdminService(data: AdminServiceCreate): Promise<AdminServiceDetail> {
+  return apiFetch<AdminServiceDetail>('/admin/services', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateAdminService(
+  id: string,
+  data: AdminServiceUpdate
+): Promise<AdminServiceDetail> {
+  return apiFetch<AdminServiceDetail>(`/admin/services/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getAdminProviderDetail(
+  id: string,
+  signal?: AbortSignal
+): Promise<AdminProviderDetail> {
+  return apiFetch<AdminProviderDetail>(`/admin/providers/${id}`, {
+    signal,
+  });
+}
+
+export async function createAdminProvider(
+  data: AdminProviderCreate
+): Promise<AdminProviderDetail> {
+  return apiFetch<AdminProviderDetail>('/admin/providers', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateAdminProvider(
+  id: string,
+  data: AdminProviderUpdate
+): Promise<AdminProviderDetail> {
+  return apiFetch<AdminProviderDetail>(`/admin/providers/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getAdminProviderServices(
+  id: string,
+  signal?: AbortSignal
+): Promise<AdminProviderServicesDetail> {
+  return apiFetch<AdminProviderServicesDetail>(`/admin/providers/${id}/services`, {
+    signal,
+  });
+}
+
+export async function replaceAdminProviderServices(
+  id: string,
+  serviceIds: string[]
+): Promise<AdminProviderServicesDetail> {
+  return apiFetch<AdminProviderServicesDetail>(`/admin/providers/${id}/services`, {
+    method: 'PUT',
+    body: JSON.stringify({ service_ids: serviceIds }),
+  });
+}
