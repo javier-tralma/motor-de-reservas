@@ -46,9 +46,10 @@ export const BookingDetailPage: React.FC = () => {
       setActionError(null);
       setActiveModal(null);
       // Invalidate relevant queries using adminQueryKeys
-      queryClient.invalidateQueries({ queryKey: adminQueryKeys.dashboard() });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] });
       queryClient.invalidateQueries({ queryKey: adminQueryKeys.bookingDetail(bookingId || '') });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.dashboard() });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.bookingsList() });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.calendarEventsRoot() });
       queryClient.invalidateQueries({ queryKey: ['public-availability'] });
     },
     onError: (err) => {

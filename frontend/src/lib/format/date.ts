@@ -132,3 +132,20 @@ export function getUpcomingDatesInTimezone(
 
   return dates;
 }
+
+export function formatCivilDateInTimezone(date: Date, timeZone = 'America/Santiago'): string {
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  const parts = formatter.formatToParts(date);
+  const year = parts.find((p) => p.type === 'year')?.value;
+  const month = parts.find((p) => p.type === 'month')?.value;
+  const day = parts.find((p) => p.type === 'day')?.value;
+  if (!year || !month || !day) {
+    throw new Error(`Unable to extract civil date parts for timezone ${timeZone}`);
+  }
+  return `${year}-${month}-${day}`;
+}

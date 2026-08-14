@@ -65,12 +65,9 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
   const createMutation = useMutation({
     mutationFn: (data: AdminTimeOffCreate) => createAdminTimeOff(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: adminQueryKeys.providerTimeOffs(providerId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: publicQueryKeys.availabilityRoot(),
-      });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.providerTimeOffs(providerId) });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.calendarEventsRoot() });
+      queryClient.invalidateQueries({ queryKey: publicQueryKeys.availabilityRoot() });
       onSuccess?.();
       handleClose();
     },

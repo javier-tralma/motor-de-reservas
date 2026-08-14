@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Home } from './features/public-booking/Home';
@@ -14,6 +15,10 @@ import { BookingDetailPage } from './features/admin/BookingDetailPage';
 import { ServicesPage } from './features/admin/ServicesPage';
 import { ProvidersPage } from './features/admin/ProvidersPage';
 import { ProviderAvailabilityPage } from './features/admin/ProviderAvailabilityPage';
+
+const AdminCalendarPage = lazy(() =>
+  import('./features/admin/AdminCalendarPage').then((m) => ({ default: m.AdminCalendarPage }))
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +57,21 @@ function App() {
           >
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<DashboardPage />} />
+              <Route
+                path="/admin/calendario"
+                element={
+                  <Suspense
+                    fallback={
+                      <div className="p-12 text-center text-slate-400" aria-busy="true">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mb-2"></div>
+                        <p>Cargando calendario...</p>
+                      </div>
+                    }
+                  >
+                    <AdminCalendarPage />
+                  </Suspense>
+                }
+              />
               <Route path="/admin/reservas" element={<BookingsListPage />} />
               <Route path="/admin/reservas/:bookingId" element={<BookingDetailPage />} />
               <Route path="/admin/servicios" element={<ServicesPage />} />
@@ -67,9 +87,5 @@ function App() {
     </QueryClientProvider>
   );
 }
-
-
-
-
 
 export default App;

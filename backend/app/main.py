@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.admin import auth as admin_auth
 from app.api.admin import bookings as admin_bookings
+from app.api.admin import calendar_events as admin_calendar_events
 from app.api.admin import dashboard as admin_dashboard
 from app.api.admin import providers as admin_providers
 from app.api.admin import services as admin_services
@@ -35,6 +36,7 @@ app.include_router(admin_bookings.router, prefix="/api/admin")
 app.include_router(admin_providers.router, prefix="/api/admin")
 app.include_router(admin_services.router, prefix="/api/admin")
 app.include_router(admin_time_off.router, prefix="/api/admin")
+app.include_router(admin_calendar_events.router, prefix="/api/admin")
 
 
 @app.exception_handler(AuthError)

@@ -167,12 +167,9 @@ export const ProviderAvailabilityPage: React.FC = () => {
   const deleteTimeOffMutation = useMutation({
     mutationFn: (id: string) => deleteAdminTimeOff(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: adminQueryKeys.providerTimeOffs(providerId || ''),
-      });
-      queryClient.invalidateQueries({
-        queryKey: publicQueryKeys.availabilityRoot(),
-      });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.providerTimeOffs(providerId || '') });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.calendarEventsRoot() });
+      queryClient.invalidateQueries({ queryKey: publicQueryKeys.availabilityRoot() });
       setTimeOffToDelete(null);
       setTimeOffDeleteError(null);
     },

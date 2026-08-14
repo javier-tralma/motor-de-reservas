@@ -358,3 +358,34 @@ export async function deleteAdminTimeOff(id: string): Promise<void> {
     method: 'DELETE',
   });
 }
+
+export interface CalendarEventItem {
+  id: string;
+  kind: 'booking' | 'time_off';
+  starts_at: string;
+  ends_at: string;
+  provider_id: string;
+  provider_name: string;
+  booking_status: string | null;
+  customer_display_name: string | null;
+  service_name: string | null;
+  reason: string | null;
+}
+
+export interface CalendarEventsData {
+  timezone: string;
+  events: CalendarEventItem[];
+}
+
+export async function getAdminCalendarEvents(start: string, end: string, providerId?: string, signal?: AbortSignal): Promise<CalendarEventsData> {
+  const params = new URLSearchParams();
+  params.append('start', start);
+  params.append('end', end);
+  if (providerId) {
+    params.append('provider_id', providerId);
+  }
+  return apiFetch<CalendarEventsData>(`/admin/calendar-events?${params.toString()}`, {
+    method: 'GET',
+    signal,
+  });
+}

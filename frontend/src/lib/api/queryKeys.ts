@@ -17,6 +17,9 @@ export const adminQueryKeys = {
     ['admin', 'provider', providerId, 'availability-rules'] as const,
   providerTimeOffs: (providerId: string) =>
     ['admin', 'provider', providerId, 'time-offs'] as const,
+  calendarEventsRoot: () => ['admin', 'calendarEvents'] as const,
+  calendarEvents: (start: string, end: string, providerId?: string) =>
+    ['admin', 'calendarEvents', { start, end, providerId }] as const,
 };
 
 export const publicQueryKeys = {

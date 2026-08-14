@@ -76,7 +76,7 @@ Necesita:
 
 - Inicio y cierre de sesión para administrador.
 - Dashboard con resumen y agenda del día.
-- Calendario con vistas de día, semana y lista.
+- Calendario de solo lectura en `/admin/calendario` con vistas de día, semana y lista, mostrando reservas y bloqueos unificados.
 - Listado, filtros básicos y detalle de reservas.
 - Cambio de estado: confirmada, completada, cancelada o inasistencia.
 - CRUD de servicios y profesionales; desactivar antes que eliminar.

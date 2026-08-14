@@ -23,8 +23,8 @@ export const AdminLayout: React.FC = () => {
   };
 
   const navItems = [
-    { label: 'Resumen', path: '/admin', active: true },
-    { label: 'Calendario', path: '#', active: false },
+    { label: 'Resumen', path: '/admin', active: true, end: true },
+    { label: 'Calendario', path: '/admin/calendario', active: true },
     { label: 'Reservas', path: '/admin/reservas', active: true },
     { label: 'Servicios', path: '/admin/servicios', active: true },
     { label: 'Profesionales', path: '/admin/profesionales', active: true },
@@ -98,7 +98,7 @@ export const AdminLayout: React.FC = () => {
                         : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`
                   }
-                  end
+                  end={item.end}
                 >
                   {item.label}
                 </NavLink>

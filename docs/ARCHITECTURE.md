@@ -168,6 +168,7 @@ PUT    /api/admin/providers/{id}/availability-rules
 GET    /api/admin/time-off
 POST   /api/admin/time-off
 DELETE /api/admin/time-off/{id}
+GET    /api/admin/calendar-events
 ```
 
 Los endpoints de reserva manual se incorporan en P1.
