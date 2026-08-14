@@ -104,10 +104,13 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     isSubmittingRef.current = true;
     try {
       await onConfirm();
+    } catch {
+      // Errors are handled by the caller
     } finally {
       isSubmittingRef.current = false;
     }
   };
+
 
   return (
     <div

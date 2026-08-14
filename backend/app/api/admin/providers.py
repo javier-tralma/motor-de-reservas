@@ -9,6 +9,10 @@ from app.core.db import get_db
 from app.core.dependencies import get_current_admin
 from app.models.admin_user import AdminUser
 from app.schemas.admin import ResponseEnvelope
+from app.schemas.availability_admin import (
+    AdminAvailabilityRuleItem,
+    AdminAvailabilityRulesReplace,
+)
 from app.schemas.booking_admin import AdminProviderListItem
 from app.schemas.catalog_admin import (
     AdminProviderCreate,
@@ -17,6 +21,7 @@ from app.schemas.catalog_admin import (
     AdminProviderServicesReplace,
     AdminProviderUpdate,
 )
+from app.services.availability_admin_service import AvailabilityAdminService
 from app.services.catalog_service import CatalogService
 
 router = APIRouter(prefix="/providers", tags=["Admin Providers"])
@@ -24,6 +29,10 @@ router = APIRouter(prefix="/providers", tags=["Admin Providers"])
 
 def get_catalog_service(db: Annotated[Session, Depends(get_db)]) -> CatalogService:
     return CatalogService(db)
+
+
+def get_availability_admin_service(db: Annotated[Session, Depends(get_db)]) -> AvailabilityAdminService:
+    return AvailabilityAdminService(db)
 
 
 @router.get("", response_model=ResponseEnvelope[list[AdminProviderListItem]])
@@ -90,3 +99,31 @@ def replace_admin_provider_services(
         business_id=current_admin.business_id, provider_id=provider_id, service_ids=data.service_ids
     )
     return ResponseEnvelope(data=replaced)
+
+
+@router.get("/{provider_id}/availability-rules", response_model=ResponseEnvelope[list[AdminAvailabilityRuleItem]])
+def get_admin_provider_availability_rules(
+    provider_id: uuid.UUID,
+    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    avail_service: Annotated[AvailabilityAdminService, Depends(get_availability_admin_service)],
+) -> ResponseEnvelope[list[AdminAvailabilityRuleItem]]:
+    rules = avail_service.get_provider_availability_rules(
+        business_id=current_admin.business_id, provider_id=provider_id
+    )
+    items = [AdminAvailabilityRuleItem(weekday=r.weekday, start_time=r.start_time, end_time=r.end_time) for r in rules]
+    return ResponseEnvelope(data=items)
+
+
+@router.put("/{provider_id}/availability-rules", response_model=ResponseEnvelope[list[AdminAvailabilityRuleItem]])
+def replace_admin_provider_availability_rules(
+    provider_id: uuid.UUID,
+    data: AdminAvailabilityRulesReplace,
+    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    avail_service: Annotated[AvailabilityAdminService, Depends(get_availability_admin_service)],
+    _: Annotated[None, Depends(verify_origin)],
+) -> ResponseEnvelope[list[AdminAvailabilityRuleItem]]:
+    rules = avail_service.replace_provider_availability_rules(
+        business_id=current_admin.business_id, provider_id=provider_id, rules=data.rules
+    )
+    items = [AdminAvailabilityRuleItem(weekday=r.weekday, start_time=r.start_time, end_time=r.end_time) for r in rules]
+    return ResponseEnvelope(data=items)

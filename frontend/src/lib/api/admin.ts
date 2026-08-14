@@ -288,3 +288,73 @@ export async function replaceAdminProviderServices(
     body: JSON.stringify({ service_ids: serviceIds }),
   });
 }
+
+export interface AdminAvailabilityRuleItem {
+  weekday: number;
+  start_time: string;
+  end_time: string;
+}
+
+export async function getAdminProviderAvailabilityRules(
+  providerId: string,
+  signal?: AbortSignal
+): Promise<AdminAvailabilityRuleItem[]> {
+  return apiFetch<AdminAvailabilityRuleItem[]>(
+    `/admin/providers/${providerId}/availability-rules`,
+    { signal }
+  );
+}
+
+export async function replaceAdminProviderAvailabilityRules(
+  providerId: string,
+  rules: AdminAvailabilityRuleItem[]
+): Promise<AdminAvailabilityRuleItem[]> {
+  return apiFetch<AdminAvailabilityRuleItem[]>(
+    `/admin/providers/${providerId}/availability-rules`,
+    {
+      method: 'PUT',
+      body: JSON.stringify({ rules }),
+    }
+  );
+}
+
+export interface AdminTimeOffDetail {
+  id: string;
+  provider_id: string;
+  starts_at: string;
+  ends_at: string;
+  reason: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminTimeOffCreate {
+  provider_id: string;
+  starts_at_local: string;
+  ends_at_local: string;
+  reason?: string | null;
+}
+
+export async function getAdminTimeOffs(
+  providerId: string,
+  signal?: AbortSignal
+): Promise<AdminTimeOffDetail[]> {
+  return apiFetch<AdminTimeOffDetail[]>(`/admin/time-off?provider_id=${providerId}`, {
+    signal,
+  });
+}
+
+export async function createAdminTimeOff(
+  data: AdminTimeOffCreate
+): Promise<AdminTimeOffDetail> {
+  return apiFetch<AdminTimeOffDetail>('/admin/time-off', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteAdminTimeOff(id: string): Promise<void> {
+  return apiFetch<void>(`/admin/time-off/${id}`, {
+    method: 'DELETE',
+  });
+}

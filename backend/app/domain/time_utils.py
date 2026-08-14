@@ -118,3 +118,15 @@ def intervals_overlap(start1: datetime, end1: datetime, start2: datetime, end2: 
     Solape ocurre si a_start < b_end and b_start < a_end
     """
     return start1 < end2 and start2 < end1
+
+
+def format_local_iso(dt: datetime, tz_name: str) -> str:
+    """
+    Convierte un instante timezone-aware (típicamente UTC) a la zona horaria del negocio
+    y lo serializa como cadena ISO 8601 con su offset explícito (ej. 2026-08-15T09:00:00-04:00).
+    Si el datetime es naive (por ejemplo de PostgreSQL), se normaliza explícitamente como UTC antes de convertir.
+    """
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    tz = ZoneInfo(tz_name)
+    return dt.astimezone(tz).isoformat()

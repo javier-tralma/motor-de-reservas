@@ -11,6 +11,7 @@ from app.api.admin import bookings as admin_bookings
 from app.api.admin import dashboard as admin_dashboard
 from app.api.admin import providers as admin_providers
 from app.api.admin import services as admin_services
+from app.api.admin import time_off as admin_time_off
 from app.api.endpoints import availability, bookings, public
 from app.api.endpoints.availability import DomainError
 from app.core.config import settings
@@ -33,6 +34,7 @@ app.include_router(admin_dashboard.router, prefix="/api/admin")
 app.include_router(admin_bookings.router, prefix="/api/admin")
 app.include_router(admin_providers.router, prefix="/api/admin")
 app.include_router(admin_services.router, prefix="/api/admin")
+app.include_router(admin_time_off.router, prefix="/api/admin")
 
 
 @app.exception_handler(AuthError)

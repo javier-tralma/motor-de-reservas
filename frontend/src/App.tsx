@@ -13,6 +13,7 @@ import { BookingsListPage } from './features/admin/BookingsListPage';
 import { BookingDetailPage } from './features/admin/BookingDetailPage';
 import { ServicesPage } from './features/admin/ServicesPage';
 import { ProvidersPage } from './features/admin/ProvidersPage';
+import { ProviderAvailabilityPage } from './features/admin/ProviderAvailabilityPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,6 +56,10 @@ function App() {
               <Route path="/admin/reservas/:bookingId" element={<BookingDetailPage />} />
               <Route path="/admin/servicios" element={<ServicesPage />} />
               <Route path="/admin/profesionales" element={<ProvidersPage />} />
+              <Route
+                path="/admin/profesionales/:providerId/disponibilidad"
+                element={<ProviderAvailabilityPage />}
+              />
             </Route>
           </Route>
         </Routes>
@@ -62,6 +67,7 @@ function App() {
     </QueryClientProvider>
   );
 }
+
 
 
 

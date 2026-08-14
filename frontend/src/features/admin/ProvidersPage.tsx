@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -313,18 +314,26 @@ export const ProvidersPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    setAssignTriggerEl(e.currentTarget);
-                    setAssignModalProvider({ id: provider.id, name: provider.name });
-                  }}
-                  className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-medium transition-colors"
-                >
+              <div className="mt-5 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      setAssignTriggerEl(e.currentTarget);
+                      setAssignModalProvider({ id: provider.id, name: provider.name });
+                    }}
+                    className="px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-medium transition-colors"
+                  >
+                    Servicios
+                  </button>
 
-                  Asignar Servicios
-                </button>
+                  <Link
+                    to={`/admin/profesionales/${provider.id}/disponibilidad`}
+                    className="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded-lg text-xs font-medium transition-colors inline-flex items-center"
+                  >
+                    Disponibilidad
+                  </Link>
+                </div>
 
                 <button
                   type="button"
@@ -334,6 +343,7 @@ export const ProvidersPage: React.FC = () => {
                   Editar
                 </button>
               </div>
+
             </div>
           ))}
         </div>

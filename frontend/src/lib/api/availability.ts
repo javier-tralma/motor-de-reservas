@@ -1,4 +1,5 @@
 import { apiFetch } from './client';
+import { publicQueryKeys } from './queryKeys';
 
 export interface SlotPublic {
   starts_at: string;
@@ -17,9 +18,10 @@ export function availabilityQueryKey(
   serviceId: string,
   date: string,
   providerId?: string | null
-): readonly ['public-availability', string, string, string | null] {
-  return ['public-availability', serviceId, date, providerId ?? null];
+) {
+  return publicQueryKeys.availability(serviceId, date, providerId);
 }
+
 
 export async function fetchPublicAvailability(params: {
   service_id: string;
