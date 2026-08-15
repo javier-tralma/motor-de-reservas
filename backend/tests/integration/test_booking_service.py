@@ -93,8 +93,18 @@ def test_create_booking_success_specific_provider(db_session, booking_service, f
     assert len(fake_email_service.sent_emails) == 1
     assert fake_email_service.was_in_transaction is False
 
+    sent_data = fake_email_service.sent_emails[0]
+    assert sent_data.booking_id == booking.id
+    assert sent_data.public_reference == booking.public_reference
+    assert sent_data.duration_minutes == 45
+    assert sent_data.business_name == "Test B"
+    assert sent_data.service_name == "Test S"
+    assert sent_data.provider_name == "Test P"
+    assert sent_data.customer_name == "Juan Perez"
+    assert sent_data.customer_email == "juan@example.com"
 
-def test_create_booking_idempotency(db_session, booking_service):
+
+def test_create_booking_idempotency(db_session, booking_service, fake_email_service):
     b_id = uuid.uuid4()
     p_id = uuid.uuid4()
     s_id = uuid.uuid4()
@@ -133,10 +143,12 @@ def test_create_booking_idempotency(db_session, booking_service):
     )
 
     booking1, _ = booking_service.create_public_booking(business.id, request)
+    assert len(fake_email_service.sent_emails) == 1
 
     # 2nd call, exactly the same
     booking2, _ = booking_service.create_public_booking(business.id, request)
     assert booking1.id == booking2.id
+    assert len(fake_email_service.sent_emails) == 1
 
     # 3rd call, same client_request_id but different time -> conflict
     request.starts_at = starts_at_local + timedelta(hours=1)

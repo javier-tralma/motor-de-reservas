@@ -152,10 +152,13 @@ class BookingService:
                 customer_email=new_booking.customer_email,
                 starts_at=new_booking.starts_at,
                 ends_at=new_booking.ends_at,
+                duration_minutes=new_booking.duration_minutes_snapshot,
                 service_name=new_booking.service_name_snapshot,
                 provider_name=new_booking.provider_name_snapshot,
                 business_name=business.name,
                 business_timezone=business.timezone,
+                business_address=business.address,
+                business_phone=business.phone,
             )
 
             # Si llegamos aquí, el commit (nested) fue exitoso para este provider.

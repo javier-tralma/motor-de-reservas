@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.db import get_db
-from app.integrations.email.service import ConsoleEmailService
+from app.integrations.email.factory import get_email_service
 from app.schemas.booking import (
     BookingCreateRequest,
     BookingPublicData,
@@ -17,8 +17,7 @@ from app.services.booking_service import BookingService
 
 def get_booking_service(db: Session = Depends(get_db)) -> BookingService:
     availability_service = AvailabilityService(db)
-    # Use ConsoleEmailService for development as requested
-    email_service = ConsoleEmailService()
+    email_service = get_email_service(settings)
     return BookingService(db, availability_service, email_service)
 
 

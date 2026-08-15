@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Optional, Protocol
 from uuid import UUID
@@ -5,6 +6,25 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from app.models.booking import EmailDeliveryStatus
+
+logger = logging.getLogger(__name__)
+
+
+def mask_email(email: str) -> str:
+    if not email or "@" not in email:
+        return "***"
+    local, domain = email.split("@", 1)
+    if len(local) <= 2:
+        masked_local = local[0] + "*" if local else "*"
+    else:
+        masked_local = local[0] + "*" * (len(local) - 2) + local[-1]
+    return f"{masked_local}@{domain}"
+
+
+def mask_name(name: str) -> str:
+    if not name:
+        return "***"
+    return name[0] + "***" if len(name) > 1 else name + "***"
 
 
 class BookingEmailData(BaseModel):
@@ -14,10 +34,13 @@ class BookingEmailData(BaseModel):
     customer_email: str
     starts_at: datetime
     ends_at: datetime
+    duration_minutes: int
     service_name: str
     provider_name: str
     business_name: str
     business_timezone: str
+    business_address: Optional[str] = None
+    business_phone: Optional[str] = None
 
 
 class EmailResult(BaseModel):
@@ -32,25 +55,14 @@ class EmailService(Protocol):
 
 class ConsoleEmailService:
     def send_booking_confirmation(self, booking: BookingEmailData) -> EmailResult:
-        masked_email = (
-            booking.customer_email[0] + "***" + booking.customer_email[booking.customer_email.find("@") :]
-            if "@" in booking.customer_email
-            else "***"
-        )
-        masked_name = booking.customer_name[0] + "***" if booking.customer_name else "***"
-
-        print(f"--- EMAIL TO: {masked_email} ---")
-        print(f"Subject: Confirmación de reserva en {booking.business_name}")
-        print(f"Hola {masked_name},")
-        print(f"Tu cita para {booking.service_name} con {booking.provider_name}")
-        print(f"está confirmada para el {booking.starts_at}.")
-        print(f"Referencia de reserva: {booking.public_reference}")
-        print("---------------------------------------")
+        masked_to = mask_email(booking.customer_email)
+        print(f"[CONSOLE EMAIL] provider=console recipient={masked_to} reference={booking.public_reference}")
         return EmailResult(status=EmailDeliveryStatus.sent, provider_id="console-dev")
 
 
 class NoOpEmailService:
     def send_booking_confirmation(self, booking: BookingEmailData) -> EmailResult:
+        logger.debug("NoOpEmailService: email skipped for %s", mask_email(booking.customer_email))
         return EmailResult(status=EmailDeliveryStatus.sent, provider_id="noop")
 
 
@@ -58,7 +70,7 @@ class FakeEmailService:
     def __init__(self):
         self.should_fail = False
         self.should_raise = False
-        self.sent_emails = []
+        self.sent_emails: list[BookingEmailData] = []
 
     def send_booking_confirmation(self, booking: BookingEmailData) -> EmailResult:
         if self.should_raise:

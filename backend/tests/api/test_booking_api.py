@@ -128,3 +128,95 @@ def test_booking_api_validation_and_errors(client, db_session):
         db_cleanup.query(Business).filter(Business.id == b_id).delete()
         db_cleanup.commit()
         db_cleanup.close()
+
+
+def test_booking_api_default_email_service(client, db_session):
+    b_id = uuid.uuid4()
+    p_id = uuid.uuid4()
+    s_id = uuid.uuid4()
+
+    business = Business(
+        id=b_id,
+        name="Test Email API Biz",
+        slug="test-email-api-biz",
+        email="biz@test.cl",
+        timezone="America/Santiago",
+        address="Calle Central 100",
+        phone="+56999887766",
+    )
+    provider = Provider(id=p_id, business_id=b_id, name="Dr. Default")
+    service = Service(id=s_id, business_id=b_id, name="Consulta Email", duration_minutes=30, price_amount=25000)
+    ps = ProviderService(business_id=b_id, provider_id=p_id, service_id=s_id)
+
+    target_date = date(2026, 8, 10)
+    rule = AvailabilityRule(
+        id=uuid.uuid4(),
+        business_id=b_id,
+        provider_id=p_id,
+        weekday=target_date.weekday(),
+        start_time=time(9, 0),
+        end_time=time(18, 0),
+    )
+    db_session.add_all([business, provider, service, ps, rule])
+    db_session.commit()
+
+    from datetime import timezone
+
+    from app.api.endpoints.bookings import get_booking_service
+    from app.domain.availability import AvailabilityEngine
+    from app.integrations.email.factory import get_email_service
+    from app.main import app
+    from app.services.availability_service import AvailabilityService
+    from app.services.booking_service import BookingService
+
+    fixed_now = datetime(2026, 8, 1, tzinfo=timezone.utc)
+    local_tz = ZoneInfo(business.timezone)
+    starts_at_local = datetime.combine(target_date, time(11, 0), tzinfo=local_tz)
+
+    def override_booking_service():
+        engine = AvailabilityEngine(get_now_fn=lambda tz="UTC": fixed_now)
+        availability_service = AvailabilityService(db_session, engine=engine)
+        email_service = get_email_service(settings)
+        return BookingService(db_session, availability_service, email_service)
+
+    app.dependency_overrides[get_booking_service] = override_booking_service
+
+    payload = {
+        "service_id": str(service.id),
+        "provider_id": str(provider.id),
+        "starts_at": starts_at_local.isoformat(),
+        "client_request_id": str(uuid.uuid4()),
+        "customer_name": "Cliente API",
+        "customer_email": "cliente@example.com",
+        "customer_phone": "+56912345678",
+        "customer_notes": "",
+    }
+
+    original_business_id = settings.BUSINESS_ID
+    settings.BUSINESS_ID = business.id
+
+    try:
+        r = client.post("/api/public/bookings", json=payload)
+        assert r.status_code == 201
+        data = r.json()["data"]
+        assert data["status"] == "confirmed"
+
+        # Check in DB that email was processed
+        from sqlalchemy import select
+
+        created_booking = db_session.execute(
+            select(Booking).filter_by(public_reference=data["public_reference"])
+        ).scalar_one()
+        assert created_booking.email_delivery_status.value == "sent"
+    finally:
+        app.dependency_overrides.clear()
+        settings.BUSINESS_ID = original_business_id
+        db_cleanup = SessionLocal()
+        db_cleanup.query(Booking).filter(Booking.business_id == b_id).delete()
+        db_cleanup.query(AvailabilityRule).filter(AvailabilityRule.business_id == b_id).delete()
+        db_cleanup.query(ProviderService).filter(ProviderService.business_id == b_id).delete()
+        db_cleanup.query(Service).filter(Service.business_id == b_id).delete()
+        db_cleanup.query(Provider).filter(Provider.business_id == b_id).delete()
+        db_cleanup.query(Business).filter(Business.id == b_id).delete()
+        db_cleanup.commit()
+        db_cleanup.close()

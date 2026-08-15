@@ -291,24 +291,28 @@ La API captura la violación conocida de exclusión y la traduce a `409 slot_una
 
 ## 11. Email
 
-Contrato mínimo:
+Contrato y abstracción:
 
 ```python
 class EmailService(Protocol):
     def send_booking_confirmation(self, booking: BookingEmailData) -> EmailResult: ...
 ```
 
-Reglas:
+Implementaciones:
+- `ResendEmailService`: Cliente HTTP aislado (`httpx`) para `POST https://api.resend.com/emails` con autenticación Bearer token.
+- `ConsoleEmailService`: Modo seguro para desarrollo local que renderiza y presenta el correo en la consola con PII enmascarada sin realizar envíos de red.
+- `NoOpEmailService`: Modo silencioso para tests y entornos deshabilitados.
+- `FakeEmailService`: Doble de prueba para tests de integración que registra correos y permite simular fallos/excepciones.
 
-- Persistir y confirmar la reserva antes de enviar.
-- Renderizar desde un DTO; no entregar un modelo ORM a la plantilla.
-- Incluir servicio, profesional, fecha, hora, negocio y contacto.
-- Presentar fecha y hora en `America/Santiago`.
-- Registrar éxito o fallo con identificador del proveedor, sin loguear el cuerpo ni datos personales completos.
-- Un fallo en el envío captura la excepción, actualiza el estado de entrega a `failed`, loguea el error en `email_last_error_code` y permite que la petición retorne 201 exitosamente. Nunca hace rollback de la reserva que ya fue persistida.
-- Tests usan un fake determinista.
+Reglas y garantías:
 
-P0 puede despachar en una tarea posterior a la respuesta si el hosting lo soporta, pero no debe fingir garantías durables. Una cola/outbox con reintentos pertenece a una decisión posterior.
+- **Garantía Post-Commit**: El envío se ejecuta estrictamente después del `db.commit()` de la reserva, verificando `assert session.in_transaction() is False`.
+- **Producción con Resend**: En `APP_ENV=production`, se exige obligatoriamente `EMAIL_PROVIDER=resend`, `RESEND_API_KEY` y `EMAIL_FROM`, rechazando `console` y `noop`.
+- **Normalización de Errores y Aislamiento de Fallos**: Las respuestas de error de Resend o fallos de conexión no utilizan texto externo (`name` ni `message`) para prevenir filtración de PII. Se normalizan a códigos estables (`resend_http_4xx`, `resend_http_5xx`, `resend_timeout`, `resend_network_error`, `resend_invalid_response`). Un fallo actualiza `email_delivery_status = 'failed'` y `email_last_error_code` en una transacción corta independiente, retornando 201 Created exitosamente con la reserva intacta. Nunca hace rollback de una reserva confirmada.
+- **Idempotencia**: Replays de peticiones con el mismo `client_request_id` devuelven la reserva existente con HTTP 200 y **no** envían un segundo email.
+- **Contenido y Zona Horaria**: Renderizado desde `BookingEmailData` (DTO puro); formatea fechas y horas en la zona IANA del negocio (`America/Santiago`). Incluye servicio, profesional, fecha, hora local, duración, código de reserva, y dirección/teléfono solo si están configurados. No inventa precios ni enlaces.
+- **Privacidad y Logs**: No se registra la clave de API ni datos personales completos (PII) en logs; se enmascara el email (ej. `j***n@example.com`). `ConsoleEmailService` emite únicamente una línea mínima con proveedor, destinatario enmascarado y referencia pública, sin imprimir el cuerpo del correo ni datos personales.
+- **Limitación explícita**: En este milestone P0 no existen colas durables, workers en segundo plano ni reintentos automáticos.
 
 ## 12. Estrategia frontend
 
@@ -329,11 +333,15 @@ Variables esperadas, sin valores secretos en documentación:
 APP_ENV
 DATABASE_URL
 BUSINESS_ID
-FRONTEND_ORIGIN
+FRONTEND_URL
 SESSION_SECRET
+ADMIN_SESSION_TTL_HOURS
+ADMIN_EMAIL
+ADMIN_PASSWORD
+ADMIN_DISPLAY_NAME
+EMAIL_PROVIDER
 RESEND_API_KEY
 EMAIL_FROM
-LOG_LEVEL
 ```
 
 Cada petición recibe `request_id`. Logs estructurados incluyen acción, resultado, latencia e identificadores internos; enmascaran email y teléfono. Registrar por separado conflictos esperados y errores inesperados.
