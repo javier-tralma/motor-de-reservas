@@ -501,3 +501,55 @@ def test_admin_providers_timestamps_are_in_business_timezone(client: TestClient,
     assert updated_at_str.endswith("-03:00")
     assert not created_at_str.endswith("+00:00")
     assert not created_at_str.endswith("Z")
+
+
+def test_admin_providers_list_with_service_id(client: TestClient, db_session: Session, monkeypatch):
+    biz, admin, p1, s1, s2, other_biz, other_provider, other_service = setup_providers_test_data(
+        db_session, monkeypatch
+    )
+
+    # Aditional providers for testing filter
+    # p2: active but not associated
+    p2 = Provider(id=uuid.uuid4(), business_id=biz.id, name="Pedro Activo", is_active=True, sort_order=1)
+    # p3: inactive but associated
+    p3 = Provider(id=uuid.uuid4(), business_id=biz.id, name="Maria Inactiva", is_active=False, sort_order=2)
+    db_session.add_all([p2, p3])
+    db_session.commit()
+
+    # Associate p3 to s1
+    ps3 = ProviderService(business_id=biz.id, provider_id=p3.id, service_id=s1.id)
+    db_session.add(ps3)
+    db_session.commit()
+
+    client.post(
+        "/api/admin/auth/login",
+        json={"email": "admin@estudionomada.cl", "password": "Password123!"},
+        headers={"Origin": settings.FRONTEND_URL},
+    )
+
+    # 1. Without filter: should return all active providers (p1, p2)
+    res_all = client.get("/api/admin/providers")
+    assert res_all.status_code == 200
+    providers_all = res_all.json()["data"]
+    assert len(providers_all) == 3
+    assert providers_all[0]["id"] == str(p1.id)
+    assert providers_all[1]["id"] == str(p2.id)
+
+    # 2. With filter s1: should return only active associated (p1).
+    # p3 is associated but inactive, p2 is active but not associated.
+    res_s1 = client.get(f"/api/admin/providers?service_id={s1.id}")
+    assert res_s1.status_code == 200
+    providers_s1 = res_s1.json()["data"]
+    assert len(providers_s1) == 1
+    assert providers_s1[0]["id"] == str(p1.id)
+
+    # 3. With filter s2: should return none (p1 is not associated to s2)
+    res_s2 = client.get(f"/api/admin/providers?service_id={s2.id}")
+    assert res_s2.status_code == 200
+    providers_s2 = res_s2.json()["data"]
+    assert len(providers_s2) == 0
+
+    # 4. Service from other business -> 404
+    res_other = client.get(f"/api/admin/providers?service_id={other_service.id}")
+    assert res_other.status_code == 404
+    assert res_other.json()["error"]["code"] == "service_not_found"

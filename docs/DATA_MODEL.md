@@ -63,7 +63,7 @@ sent
 failed
 ```
 
-Una reserva pública nace con confirmación `pending`. Una manual puede ser `pending` o `not_requested` según el comando explícito.
+Una reserva pública nace con confirmación `pending`. Una manual nace obligatoriamente con `not_requested`.
 
 ## 4. Tablas
 
@@ -262,6 +262,7 @@ Constraints e índices:
 - restricción de exclusión para impedir solapamientos activos.
 
 La API pública nunca devuelve `id`, `business_id`, datos administrativos de email ni notas internas. `public_reference` permite recuperar solo un resumen limitado de confirmación.
+Para creación manual, la reserva usa obligatoriamente `source='admin'` y `email_delivery_status='not_requested'`, y no envía email.
 
 ## 5. Prevención de doble reserva
 

@@ -65,7 +65,7 @@ export const ProvidersPage: React.FC = () => {
     refetch,
   } = useQuery({
     queryKey: adminQueryKeys.providers(),
-    queryFn: ({ signal }) => getAdminProviders(signal),
+    queryFn: ({ signal }) => getAdminProviders(undefined, signal),
   });
 
   const {

@@ -135,10 +135,23 @@ class CatalogService:
             updated_at=to_local(service.updated_at),
         )
 
-    def list_providers(self, business_id: uuid.UUID) -> list[AdminProviderListItem]:
-        stmt = (
-            select(Provider).filter_by(business_id=business_id).order_by(Provider.sort_order.asc(), Provider.name.asc())
-        )
+    def list_providers(
+        self, business_id: uuid.UUID, service_id: uuid.UUID | None = None
+    ) -> list[AdminProviderListItem]:
+        stmt = select(Provider).filter_by(business_id=business_id)
+
+        if service_id:
+            service = self.db.execute(
+                select(Service).filter_by(id=service_id, business_id=business_id)
+            ).scalar_one_or_none()
+            if not service:
+                raise DomainError(code="service_not_found", message="Service not found", status_code=404)
+
+            stmt = stmt.join(ProviderService, Provider.id == ProviderService.provider_id).filter(
+                ProviderService.service_id == service_id, Provider.is_active.is_(True)
+            )
+
+        stmt = stmt.order_by(Provider.sort_order.asc(), Provider.name.asc())
         providers = self.db.execute(stmt).scalars().all()
         return [
             AdminProviderListItem(

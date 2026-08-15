@@ -106,6 +106,17 @@ export interface AdminBookingDetail {
   updated_at: string;
 }
 
+export interface AdminBookingCreateRequest {
+  service_id: string;
+  provider_id: string;
+  starts_at: string;
+  client_request_id: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  customer_notes?: string;
+}
+
 export interface AdminProviderListItem {
   id: string;
   name: string;
@@ -148,8 +159,20 @@ export async function updateAdminBookingStatus(
   });
 }
 
-export async function getAdminProviders(signal?: AbortSignal): Promise<AdminProviderListItem[]> {
-  return apiFetch<AdminProviderListItem[]>('/admin/providers', {
+export async function createAdminBooking(payload: AdminBookingCreateRequest): Promise<AdminBookingDetail> {
+  return apiFetch<AdminBookingDetail>('/admin/bookings', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getAdminProviders(service_id?: string, signal?: AbortSignal): Promise<AdminProviderListItem[]> {
+  const query = new URLSearchParams();
+  if (service_id) {
+    query.set('service_id', service_id);
+  }
+  const qs = query.toString();
+  return apiFetch<AdminProviderListItem[]>(`/admin/providers${qs ? `?${qs}` : ''}`, {
     signal,
   });
 }

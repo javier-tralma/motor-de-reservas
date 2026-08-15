@@ -18,7 +18,12 @@ from app.models.business import Business
 from app.models.provider import Provider
 from app.models.service import Service
 from app.schemas.booking import BookingCreateRequest
-from app.schemas.booking_admin import AdminBookingDetail, AdminBookingListItem, AdminProviderListItem
+from app.schemas.booking_admin import (
+    AdminBookingCreateRequest,
+    AdminBookingDetail,
+    AdminBookingListItem,
+    AdminProviderListItem,
+)
 from app.services.availability_service import AvailabilityService
 
 
@@ -28,7 +33,13 @@ class BookingService:
         self.availability_service = availability_service
         self.email_service = email_service
 
-    def create_public_booking(self, business_id: uuid.UUID, request: BookingCreateRequest) -> tuple[Booking, bool]:
+    def _create_booking_core(
+        self,
+        business_id: uuid.UUID,
+        request: BookingCreateRequest | AdminBookingCreateRequest,
+        source: BookingSource,
+        initial_email_status: EmailDeliveryStatus,
+    ) -> tuple[Booking, bool, BookingEmailData | None, Business]:
         # 1. Resolver el negocio para la zona horaria y validaciones
         business = self.db.execute(select(Business).filter_by(id=business_id)).scalar_one_or_none()
         if not business:
@@ -40,7 +51,7 @@ class BookingService:
         # 3. Validar idempotencia normal consultando si ya existe (para requests secuenciales)
         replay = self._check_idempotency_fallback(business_id, request.client_request_id, fingerprint, expire_all=False)
         if replay:
-            return replay
+            return replay[0], replay[1], None, business
 
         # 4. Validar que el servicio exista y esté activo
         service = self.db.execute(
@@ -68,7 +79,7 @@ class BookingService:
         if not valid_slots:
             replay = self._check_idempotency_fallback(business_id, request.client_request_id, fingerprint)
             if replay:
-                return replay
+                return replay[0], replay[1], None, business
             raise DomainError(code="slot_unavailable", message="The requested slot is not available.", status_code=409)
 
         # 6. Intentar reservar con los candidatos disponibles (de forma determinista)
@@ -100,12 +111,12 @@ class BookingService:
                 starts_at=request.starts_at,
                 ends_at=ends_at_utc,
                 status=BookingStatus.confirmed,
-                source=BookingSource.public,
+                source=source,
                 service_name_snapshot=service.name,
                 duration_minutes_snapshot=service.duration_minutes,
                 price_amount_snapshot=service.price_amount,
                 provider_name_snapshot=provider.name,
-                email_delivery_status=EmailDeliveryStatus.pending,
+                email_delivery_status=initial_email_status,
             )
 
             try:
@@ -132,7 +143,7 @@ class BookingService:
                     ).scalar_one()
 
                     if existing_booking.request_fingerprint == fingerprint:
-                        return existing_booking, False
+                        return existing_booking, False, None, business
                     else:
                         raise DomainError(
                             code="idempotency_conflict",
@@ -145,42 +156,64 @@ class BookingService:
                         code="database_error", message="Unexpected integrity error", status_code=500
                     ) from e
 
-            email_data = BookingEmailData(
-                booking_id=new_booking.id,
-                public_reference=new_booking.public_reference,
-                customer_name=new_booking.customer_name,
-                customer_email=new_booking.customer_email,
-                starts_at=new_booking.starts_at,
-                ends_at=new_booking.ends_at,
-                duration_minutes=new_booking.duration_minutes_snapshot,
-                service_name=new_booking.service_name_snapshot,
-                provider_name=new_booking.provider_name_snapshot,
-                business_name=business.name,
-                business_timezone=business.timezone,
-                business_address=business.address,
-                business_phone=business.phone,
-            )
+            email_data = None
+            if initial_email_status != EmailDeliveryStatus.not_requested:
+                email_data = BookingEmailData(
+                    booking_id=new_booking.id,
+                    public_reference=new_booking.public_reference,
+                    customer_name=new_booking.customer_name,
+                    customer_email=new_booking.customer_email,
+                    starts_at=new_booking.starts_at,
+                    ends_at=new_booking.ends_at,
+                    duration_minutes=new_booking.duration_minutes_snapshot,
+                    service_name=new_booking.service_name_snapshot,
+                    provider_name=new_booking.provider_name_snapshot,
+                    business_name=business.name,
+                    business_timezone=business.timezone,
+                    business_address=business.address,
+                    business_phone=business.phone,
+                )
 
-            # Si llegamos aquí, el commit (nested) fue exitoso para este provider.
-            # Hacemos commit de la transacción principal
+            return new_booking, True, email_data, business
+
+        # Si agotamos todos los candidatos sin éxito, el slot realmente no está disponible
+        replay = self._check_idempotency_fallback(business_id, request.client_request_id, fingerprint)
+        if replay:
+            return replay[0], replay[1], None, business
+
+        raise DomainError(code="slot_unavailable", message="The requested slot is not available.", status_code=409)
+
+    def create_public_booking(self, business_id: uuid.UUID, request: BookingCreateRequest) -> tuple[Booking, bool]:
+        booking, created, email_data, business = self._create_booking_core(
+            business_id,
+            request,
+            source=BookingSource.public,
+            initial_email_status=EmailDeliveryStatus.pending,
+        )
+
+        if created and email_data:
             self.db.commit()
-
-            # Post-commit: Enviar Email (fuera de la transacción de DB de reservas)
             self._send_confirmation_email(
                 email_data=email_data,
                 business_id=business_id,
             )
 
-            return new_booking, True
+        return booking, created
 
-        # Si agotamos todos los candidatos sin éxito, el slot realmente no está disponible
-        replay = self._check_idempotency_fallback(business_id, request.client_request_id, fingerprint)
-        if replay:
-            return replay
+    def create_admin_booking(self, business_id: uuid.UUID, request: AdminBookingCreateRequest) -> tuple[Booking, bool]:
+        booking, created, email_data, business = self._create_booking_core(
+            business_id,
+            request,
+            source=BookingSource.admin,
+            initial_email_status=EmailDeliveryStatus.not_requested,
+        )
 
-        raise DomainError(code="slot_unavailable", message="The requested slot is not available.", status_code=409)
+        if created:
+            self.db.commit()
 
-    def _generate_fingerprint(self, request: BookingCreateRequest) -> str:
+        return booking, created
+
+    def _generate_fingerprint(self, request: BookingCreateRequest | AdminBookingCreateRequest) -> str:
         # Canonical string for idempotency matching
         from datetime import timezone
 

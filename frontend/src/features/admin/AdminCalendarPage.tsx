@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../auth/useAuth';
 import {
@@ -26,7 +26,7 @@ export const AdminCalendarPage: React.FC = () => {
   // Fetch providers for the filter dropdown
   const { data: providersResponse } = useQuery<AdminProviderListItem[], ApiError>({
     queryKey: adminQueryKeys.providers(),
-    queryFn: ({ signal }) => getAdminProviders(signal),
+    queryFn: ({ signal }) => getAdminProviders(undefined, signal),
     staleTime: 60000,
     retry: (_failureCount, err) => {
       if (err?.status === 401) {
@@ -122,6 +122,12 @@ export const AdminCalendarPage: React.FC = () => {
               </option>
             ))}
           </select>
+          <Link
+            to="/admin/reservas/nueva"
+            className="mt-4 sm:mt-0 sm:ml-4 inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+          >
+            Nueva Reserva
+          </Link>
         </div>
       </div>
 

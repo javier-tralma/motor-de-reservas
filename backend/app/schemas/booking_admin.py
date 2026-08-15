@@ -1,7 +1,8 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, EmailStr, Field, StringConstraints, field_validator
 
 from app.models.booking import BookingSource, BookingStatus
 
@@ -60,3 +61,23 @@ class AdminProviderListItem(BaseModel):
     id: UUID
     name: str
     is_active: bool
+
+
+class AdminBookingCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    service_id: UUID
+    provider_id: UUID
+    starts_at: AwareDatetime
+    client_request_id: UUID
+    customer_name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
+    customer_email: EmailStr
+    customer_phone: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=32)]
+    customer_notes: str = Field(default="", max_length=500)
+
+    @field_validator("starts_at")
+    @classmethod
+    def starts_at_must_be_utc(cls, v: datetime) -> datetime:
+        from datetime import timezone
+
+        return v.astimezone(timezone.utc)

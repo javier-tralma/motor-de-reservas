@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.core.csrf import verify_origin
@@ -39,8 +39,9 @@ def get_availability_admin_service(db: Annotated[Session, Depends(get_db)]) -> A
 def list_admin_providers(
     current_admin: Annotated[AdminUser, Depends(get_current_admin)],
     service: Annotated[CatalogService, Depends(get_catalog_service)],
+    service_id: Annotated[uuid.UUID | None, Query()] = None,
 ) -> ResponseEnvelope[list[AdminProviderListItem]]:
-    providers = service.list_providers(business_id=current_admin.business_id)
+    providers = service.list_providers(business_id=current_admin.business_id, service_id=service_id)
     return ResponseEnvelope(data=providers)
 
 

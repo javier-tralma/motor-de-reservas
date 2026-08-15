@@ -2,17 +2,22 @@ from datetime import date, datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.csrf import verify_origin
 from app.core.db import get_db
 from app.core.dependencies import get_current_admin, get_utc_now
-from app.integrations.email.service import FakeEmailService
+from app.integrations.email.service import FakeEmailService, NoOpEmailService
 from app.models.admin_user import AdminUser
 from app.models.booking import BookingStatus
 from app.schemas.admin import ResponseEnvelope
-from app.schemas.booking_admin import AdminBookingDetail, AdminBookingListItem, AdminBookingStatusUpdate
+from app.schemas.booking_admin import (
+    AdminBookingCreateRequest,
+    AdminBookingDetail,
+    AdminBookingListItem,
+    AdminBookingStatusUpdate,
+)
 from app.services.availability_service import AvailabilityService
 from app.services.booking_service import BookingService
 
@@ -23,6 +28,28 @@ def get_booking_service(db: Annotated[Session, Depends(get_db)]) -> BookingServi
     availability_service = AvailabilityService(db)
     email_service = FakeEmailService()
     return BookingService(db, availability_service, email_service)
+
+
+def get_booking_service_admin(db: Annotated[Session, Depends(get_db)]) -> BookingService:
+    availability_service = AvailabilityService(db)
+    email_service = NoOpEmailService()
+    return BookingService(db, availability_service, email_service)
+
+
+@router.post("", response_model=ResponseEnvelope[AdminBookingDetail], status_code=status.HTTP_201_CREATED)
+def create_admin_booking(
+    request: AdminBookingCreateRequest,
+    current_admin: Annotated[AdminUser, Depends(get_current_admin)],
+    service: Annotated[BookingService, Depends(get_booking_service_admin)],
+    response: Response,
+    _: Annotated[None, Depends(verify_origin)],
+) -> ResponseEnvelope[AdminBookingDetail]:
+    booking, created = service.create_admin_booking(business_id=current_admin.business_id, request=request)
+    if not created:
+        response.status_code = status.HTTP_200_OK
+
+    detail = service.get_admin_booking_detail(business_id=current_admin.business_id, booking_id=booking.id)
+    return ResponseEnvelope(data=detail)
 
 
 @router.get("", response_model=ResponseEnvelope[list[AdminBookingListItem]])

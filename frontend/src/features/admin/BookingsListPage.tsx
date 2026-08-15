@@ -24,7 +24,7 @@ export const BookingsListPage: React.FC = () => {
   // Fetch providers for filter dropdown
   const { data: providers } = useQuery<AdminProviderListItem[], ApiError>({
     queryKey: adminQueryKeys.providers(),
-    queryFn: ({ signal }) => getAdminProviders(signal),
+    queryFn: ({ signal }) => getAdminProviders(undefined, signal),
     staleTime: 60000,
   });
 
@@ -103,6 +103,14 @@ export const BookingsListPage: React.FC = () => {
           <p className="text-slate-400 text-sm mt-1">
             Consulta, filtra y gestiona el estado operativo de las citas.
           </p>
+        </div>
+        <div className="flex-shrink-0">
+          <Link
+            to="/admin/reservas/nueva"
+            className="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+          >
+            Nueva Reserva
+          </Link>
         </div>
       </div>
 

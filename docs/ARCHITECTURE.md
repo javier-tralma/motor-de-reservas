@@ -169,9 +169,10 @@ GET    /api/admin/time-off
 POST   /api/admin/time-off
 DELETE /api/admin/time-off/{id}
 GET    /api/admin/calendar-events
+POST   /api/admin/bookings
 ```
 
-Los endpoints de reserva manual se incorporan en P1.
+`POST /api/admin/bookings`: Crea una reserva administrativamente. Autenticado y protegido por origen (CSRF). El profesional es obligatorio. Usa `client_request_id` para asegurar idempotencia. Devuelve `201` en éxito, o `200` si es un replay. En conflicto de disponibilidad devuelve `409 slot_unavailable`. No envía correo al cliente (`email_delivery_status="not_requested"` y `source="admin"` obligatorios internamente).
 
 ### Errores
 
