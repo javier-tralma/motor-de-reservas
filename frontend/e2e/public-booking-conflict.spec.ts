@@ -21,7 +21,14 @@ test.describe('Conflicto Concurrente Real de Reserva (409)', () => {
     // 3. Step 3: Seleccionar un slot
     await expect(page.getByRole('heading', { name: 'Elige una fecha y una hora' })).toBeVisible({ timeout: 10000 });
     const slotButtons = page.locator('button[data-starts-at]');
-    await expect(slotButtons.first()).toBeVisible({ timeout: 10000 });
+    const nextDayBtn = page.getByRole('button', { name: 'Ver próximo día disponible' });
+    await expect(slotButtons.first().or(nextDayBtn)).toBeVisible({ timeout: 10000 });
+    if (await nextDayBtn.isVisible()) {
+      await nextDayBtn.click();
+      await expect(slotButtons.first()).toBeVisible({ timeout: 10000 });
+    }
+
+
 
     const slotCount = await slotButtons.count();
     const chosenSlot = slotCount > 1 ? slotButtons.nth(1) : slotButtons.first();

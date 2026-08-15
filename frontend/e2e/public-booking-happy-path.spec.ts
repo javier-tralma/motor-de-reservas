@@ -21,9 +21,16 @@ test.describe('Reserva Pública Móvil (Happy Path)', () => {
     // 4. Step 3: Fecha y Horario
     await expect(page.getByRole('heading', { name: 'Elige una fecha y una hora' })).toBeVisible({ timeout: 10000 });
     const slotButtons = page.locator('button[data-starts-at]');
-    await expect(slotButtons.first()).toBeVisible({ timeout: 10000 });
+    const nextDayBtn = page.getByRole('button', { name: 'Ver próximo día disponible' });
+    await expect(slotButtons.first().or(nextDayBtn)).toBeVisible({ timeout: 10000 });
+    if (await nextDayBtn.isVisible()) {
+      await nextDayBtn.click();
+      await expect(slotButtons.first()).toBeVisible({ timeout: 10000 });
+    }
     await slotButtons.first().click();
     await page.getByRole('button', { name: 'Continuar' }).click();
+
+
 
     // 5. Step 4: Datos del cliente
     await expect(page.getByRole('heading', { name: 'Ingresa tus datos de contacto' })).toBeVisible({ timeout: 10000 });

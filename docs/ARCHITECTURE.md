@@ -398,7 +398,42 @@ SQLite no sustituye estas pruebas porque no reproduce rangos, GiST ni concurrenc
 - Transición administrativa de reserva creada en flujo de prueba.
 
 
-## 15. Decisiones diferidas
+## 15. Integración Continua (CI) y Calidad Operativa
+
+Pipeline declarativo en `.github/workflows/ci.yml` ejecutado en cada `push` y `pull_request` sobre `master`:
+
+### 15.1 Jobs y Paralelismo
+- **`backend`**:
+  - Servicio PostgreSQL 16 aislado en puerto `5433` para `booking_test`.
+  - Python 3.14 con `uv` y caché basada en `backend/uv.lock`.
+  - `uv sync --frozen --dev`.
+  - `uv run ruff check .` y `uv run ruff format --check .`.
+  - Validación de migraciones desde base limpia: `uv run alembic upgrade head`.
+  - Chequeo de drift de modelos SQLAlchemy: `uv run alembic check`.
+  - Ejecución de suite Pytest: `PYTHONPATH=. uv run pytest -q`.
+- **`frontend`**:
+  - Node.js 24 con caché npm basada en `frontend/package-lock.json`.
+  - `npm ci`.
+  - `npm run lint` (ESLint 10), `npm run typecheck` (`tsc --noEmit`).
+  - `npm run test -- --run` (Vitest 4).
+  - `npm run build` (Vite production bundle).
+- **`e2e`**:
+  - Preparación de Python 3.14/uv y Node 24/npm con cachés de dependencias.
+  - Caché e instalación de Playwright Chromium con dependencias de sistema.
+  - Ejecución de `npm run e2e` contra contenedor efímero `db_e2e` en puerto `5434`.
+  - Carga de trazas y reportes de fallo (`test-results/`, `playwright-report/`) con retención de 7 días.
+- **`ci-success`**:
+  - Job agregador estricto (`needs: [backend, frontend, e2e]`, `if: always()`).
+  - Falla de forma inequívoca si cualquiera de los tres jobs no concluyó en `success`.
+
+### 15.2 Invariantes de Seguridad y Aislamiento en CI
+- **Prohibición de `booking_db`**: La base de desarrollo/producción jamás se levanta, nombra ni utiliza en CI.
+- **Protección contra colisión**: `DATABASE_URL` a nivel de job se configura con un placeholder sintácticamente válido que no coincide con `booking_test`. `validate_test_db_url()` en `tests/conftest.py` comprueba la no-equivalencia inicial y luego sincroniza `settings.DATABASE_URL` a la URL validada de `booking_test` para que `SessionLocal` opere sobre el servicio de test.
+- **Permisos mínimos**: `permissions: contents: read`.
+- **Concurrencia**: `cancel-in-progress: true` para ramas de Pull Requests; nunca cancela runs de la rama `master`.
+
+
+## 16. Decisiones diferidas
 
 Requieren ADR antes de implementarse:
 

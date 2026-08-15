@@ -66,6 +66,7 @@ def get_test_db_url():
 
     validated = validate_test_db_url(test_db_url, db_url)
     os.environ["DATABASE_URL"] = validated
+    settings.DATABASE_URL = validated
     sys._test_db_validated = True
     return validated
 

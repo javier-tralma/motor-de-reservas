@@ -240,6 +240,6 @@ No son métricas comerciales del MVP; son señales de que el producto está list
 6. **Notificaciones:** Resend, plantilla y manejo de fallos.
 7. **Hardening:** concurrencia, zonas horarias, accesibilidad y E2E.
 8. **Portafolio:** datos demo, despliegue, documentación y material visual.
+9. **CI y Calidad Operativa (Milestone 13):** Pipeline declarativo de GitHub Actions (`.github/workflows/ci.yml`) implementado y validado localmente con jobs paralelos (`backend`, `frontend`, `e2e`), aislamiento estricto de base de datos (`booking_test`, `booking_e2e`, sin tocar `booking_db`), agregador `ci-success` y cachés por lockfiles (pendiente de su primera ejecución remota tras el push del usuario a GitHub).
 
 Cada hito debe terminar funcionando verticalmente. No acumular grandes capas incompletas ni iniciar P2 como «preparación».
-
