@@ -8,7 +8,7 @@ import {
 import type { AdminServiceDetail } from '../../lib/api/admin';
 import { adminQueryKeys } from '../../lib/api/queryKeys';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
-
+import { Button } from '../../components/Button';
 
 interface AssignServicesModalProps {
   providerId: string;
@@ -30,8 +30,13 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
   const [serverError, setServerError] = useState<string | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(triggerElement || null);
 
-  useFocusTrap(modalRef, isOpen);
+  useEffect(() => {
+    if (triggerElement) {
+      triggerRef.current = triggerElement;
+    }
+  }, [triggerElement]);
 
   // Query assigned provider services
   const {
@@ -45,7 +50,7 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
     enabled: isOpen && !!providerId,
   });
 
-  // Ref for tracking synced data identity (declared early to keep hook order stable)
+  // Ref for tracking synced data identity
   const lastSyncedRef = useRef<string | null>(null);
 
   // Query all services in business
@@ -71,6 +76,19 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
 
   const isSubmitting = replaceMutation.isPending;
 
+  const handleClose = () => {
+    if (isSubmitting) return;
+    setServerError(null);
+    onClose();
+  };
+
+  useFocusTrap(modalRef, isOpen, {
+    onEscape: handleClose,
+    disableEscape: isSubmitting,
+    initialFocusRef: closeButtonRef,
+    returnFocusRef: triggerRef,
+  });
+
   const syncKey = providerServicesData
     ? providerId + ':' + providerServicesData.service_ids.join(',')
     : null;
@@ -81,15 +99,6 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
       setSelectedIds(providerServicesData!.service_ids);
     }
   }, [syncKey, isSubmitting, providerServicesData]);
-
-  const handleClose = () => {
-    if (isSubmitting) return;
-    setServerError(null);
-    onClose();
-    if (triggerElement) {
-      triggerElement.focus();
-    }
-  };
 
   const handleSave = async () => {
     setServerError(null);
@@ -102,25 +111,6 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
     }
   };
 
-  // Keyboard Escape listener & focus management
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isSubmitting) {
-        setServerError(null);
-        onClose();
-        if (triggerElement) {
-          triggerElement.focus();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    if (closeButtonRef.current) {
-      closeButtonRef.current.focus();
-    }
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isSubmitting, onClose, triggerElement]);
-
   const toggleService = (serviceId: string) => {
     if (isSubmitting) return;
     setSelectedIds((prev) =>
@@ -129,8 +119,6 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
   };
 
   if (!isOpen) return null;
-
-
 
   const isLoading = isLoadingAssigned || isLoadingAll;
   const isError = isErrorAssigned || isErrorAll;
@@ -167,7 +155,7 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
         </div>
 
         {serverError && (
-          <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300">
+          <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300" role="alert">
             {serverError}
           </div>
         )}
@@ -237,22 +225,24 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={handleClose}
             disabled={isSubmitting}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition-colors disabled:opacity-50"
+            className="text-xs px-4 py-2"
           >
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={handleSave}
+            isLoading={isSubmitting}
             disabled={isSubmitting || isLoading || isError}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold rounded-xl text-xs transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="text-xs px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold"
           >
-            {isSubmitting ? 'Guardando...' : 'Guardar Asignaciones'}
-          </button>
+            Guardar Asignaciones
+          </Button>
         </div>
       </div>
     </div>

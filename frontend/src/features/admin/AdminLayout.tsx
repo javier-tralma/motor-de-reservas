@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 export const AdminLayout: React.FC = () => {
   const { user, business, logout } = useAuth();
@@ -8,6 +9,22 @@ export const AdminLayout: React.FC = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
+
+  const mainRef = useRef<HTMLElement | null>(null);
+  const asideRef = useRef<HTMLElement | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  // Focus trap for mobile drawer:
+  // - Confines Tab/Shift+Tab inside asideRef
+  // - Applies `inert` exclusively to mainRef
+  // - Closes on Escape
+  // - Restores focus to menuButtonRef upon close
+  useFocusTrap(asideRef, isMobileOpen, {
+    onEscape: () => setIsMobileOpen(false),
+    disableEscape: isLoggingOut,
+    returnFocusRef: menuButtonRef,
+    inertRefs: [mainRef],
+  });
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -31,8 +48,6 @@ export const AdminLayout: React.FC = () => {
     { label: 'Horarios', path: '#', active: false },
   ];
 
-
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">
       {/* Mobile Top Navigation */}
@@ -44,10 +59,11 @@ export const AdminLayout: React.FC = () => {
           <span className="text-sm font-bold text-white">Panel Admin</span>
         </div>
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
           aria-expanded={isMobileOpen}
-          aria-label="Abrir menú de navegación"
+          aria-label={isMobileOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
           className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -70,6 +86,8 @@ export const AdminLayout: React.FC = () => {
 
       {/* Sidebar (Desktop + Mobile Drawer) */}
       <aside
+        ref={asideRef}
+        aria-label="Panel lateral de administración"
         className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between transform transition-transform duration-200 ease-in-out ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
@@ -85,7 +103,7 @@ export const AdminLayout: React.FC = () => {
 
           {/* Navigation Links */}
           <nav className="p-4 space-y-1" aria-label="Navegación principal">
-            {navItems.map((item) => (
+            {navItems.map((item) =>
               item.active ? (
                 <NavLink
                   key={item.label}
@@ -115,7 +133,7 @@ export const AdminLayout: React.FC = () => {
                   </span>
                 </span>
               )
-            ))}
+            )}
           </nav>
         </div>
 
@@ -138,12 +156,13 @@ export const AdminLayout: React.FC = () => {
               onClick={handleLogout}
               disabled={isLoggingOut}
               aria-label="Cerrar sesión"
-              className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-slate-700/50 hover:border-rose-500/30 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500"
+              aria-busy={isLoggingOut ? 'true' : undefined}
+              className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-slate-700/50 hover:border-rose-500/30 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
             >
               {isLoggingOut ? (
-                <span className="w-5 h-5 block border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                <span className="w-5 h-5 block border-2 border-slate-400 border-t-transparent rounded-full animate-spin" aria-hidden="true" />
               ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
               )}
@@ -153,7 +172,7 @@ export const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+      <main ref={mainRef} className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
         <Outlet />
       </main>
     </div>

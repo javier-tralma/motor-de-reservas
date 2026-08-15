@@ -77,6 +77,19 @@ export const BookingsListPage: React.FC = () => {
     }
   };
 
+  const formatBookingDate = (startsAtStr: string): string => {
+    try {
+      const start = new Date(startsAtStr);
+      const timeZone = business?.timezone || 'America/Santiago';
+      return new Intl.DateTimeFormat('es-CL', {
+        dateStyle: 'short',
+        timeZone,
+      }).format(start);
+    } catch {
+      return startsAtStr;
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -107,7 +120,7 @@ export const BookingsListPage: React.FC = () => {
         <div className="flex-shrink-0">
           <Link
             to="/admin/reservas/nueva"
-            className="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+            className="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50 min-h-[44px]"
           >
             Nueva Reserva
           </Link>
@@ -201,19 +214,81 @@ export const BookingsListPage: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {bookings?.map((item) => {
-            const badge = getStatusBadge(item.status);
-            return (
-              <Link
-                key={item.id}
-                to={`/admin/reservas/${item.id}`}
-                className="p-5 rounded-2xl bg-slate-900 border border-slate-800/80 hover:border-slate-700 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <div className="flex items-start sm:items-center gap-4">
-                  <div className="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700/50 text-slate-200 font-mono text-sm font-semibold shrink-0">
-                    {formatTimeRange(item.starts_at, item.ends_at)}
+        <>
+          {/* Desktop Table View (hidden on mobile, visible on md and up) */}
+          <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900">
+            <table className="w-full text-left border-collapse text-sm">
+              <thead className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400 font-semibold bg-slate-950/40">
+                <tr>
+                  <th scope="col" className="py-3.5 px-4">Fecha / Horario</th>
+                  <th scope="col" className="py-3.5 px-4">Cliente</th>
+                  <th scope="col" className="py-3.5 px-4">Servicio</th>
+                  <th scope="col" className="py-3.5 px-4">Profesional</th>
+                  <th scope="col" className="py-3.5 px-4">Estado</th>
+                  <th scope="col" className="py-3.5 px-4 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60 text-slate-200">
+                {bookings?.map((item) => {
+                  const badge = getStatusBadge(item.status);
+                  return (
+                    <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
+                      <td className="py-3.5 px-4 font-medium whitespace-nowrap">
+                        <div className="font-mono text-xs text-white">
+                          {formatTimeRange(item.starts_at, item.ends_at)}
+                        </div>
+                        <div className="text-xs text-slate-400 mt-0.5">
+                          {formatBookingDate(item.starts_at)}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 font-semibold text-white">
+                        {item.customer_name}
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-300">
+                        {item.service_name_snapshot}
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-300">
+                        {item.provider_name_snapshot}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`inline-flex px-2.5 py-0.5 rounded-full border text-xs font-semibold ${badge.className}`}>
+                          {badge.label}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <Link
+                          to={`/admin/reservas/${item.id}`}
+                          className="inline-flex items-center text-xs font-medium text-emerald-400 hover:text-emerald-300 underline focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-2 py-1"
+                        >
+                          Ver detalle
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card List View (visible on mobile, hidden on md and up) */}
+          <div className="block md:hidden space-y-3">
+            {bookings?.map((item) => {
+              const badge = getStatusBadge(item.status);
+              return (
+                <Link
+                  key={item.id}
+                  to={`/admin/reservas/${item.id}`}
+                  className="p-4 rounded-2xl bg-slate-900 border border-slate-800/80 hover:border-slate-700 transition-colors flex flex-col gap-3 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-emerald-500 block text-left"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700/50 text-slate-200 font-mono text-xs font-semibold shrink-0">
+                      {formatTimeRange(item.starts_at, item.ends_at)}
+                    </div>
+                    <span className={`px-2.5 py-0.5 rounded-full border text-xs font-semibold ${badge.className}`}>
+                      {badge.label}
+                    </span>
                   </div>
+
                   <div>
                     <p className="text-base font-bold text-white group-hover:text-emerald-400 transition-colors">
                       {item.customer_name}
@@ -222,22 +297,12 @@ export const BookingsListPage: React.FC = () => {
                       {item.service_name_snapshot} — <span className="text-slate-300">{item.provider_name_snapshot}</span>
                     </p>
                   </div>
-                </div>
-
-                <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-                  <span className={`px-3 py-1 rounded-full border text-xs font-semibold ${badge.className}`}>
-                    {badge.label}
-                  </span>
-                  <svg className="w-5 h-5 text-slate-600 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+                </Link>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
 };
-

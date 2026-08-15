@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPublicAvailability, availabilityQueryKey, type SlotPublic } from '../../lib/api/availability';
 import type { ServicePublic, ProviderPublic } from '../../lib/api/services';
@@ -39,6 +39,15 @@ export const StepDateTime: React.FC<StepDateTimeProps> = ({
   onBack,
   conflictMessage,
 }) => {
+  const conflictAlertRef = useRef<HTMLDivElement | null>(null);
+
+  // Focus urgent conflict alert on mount or when conflict message appears
+  useEffect(() => {
+    if (conflictMessage) {
+      conflictAlertRef.current?.focus();
+    }
+  }, [conflictMessage]);
+
   // Generate list of available dates in business timezone
   const availableDates = useMemo(() => {
     return getUpcomingDatesInTimezone(Math.min(bookingHorizonDays, 14), timeZone);
@@ -103,7 +112,14 @@ export const StepDateTime: React.FC<StepDateTimeProps> = ({
 
       {/* Conflicto 409 alert */}
       {conflictMessage && (
-        <InlineAlert type="warning" title="Horario no disponible" message={conflictMessage} />
+        <InlineAlert
+          ref={conflictAlertRef}
+          type="error"
+          isUrgent={true}
+          tabIndex={-1}
+          title="Horario no disponible"
+          message={conflictMessage}
+        />
       )}
 
       {/* Date Strip */}
@@ -149,6 +165,7 @@ export const StepDateTime: React.FC<StepDateTimeProps> = ({
         {isError && (
           <InlineAlert
             type="error"
+            isUrgent={true}
             title="Error al cargar horarios"
             message={error instanceof Error ? error.message : 'No pudimos cargar los horarios'}
             onRetry={() => refetch()}

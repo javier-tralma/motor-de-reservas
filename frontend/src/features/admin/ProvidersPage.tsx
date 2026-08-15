@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -14,6 +14,7 @@ import type { AdminProviderDetail, AdminProviderListItem } from '../../lib/api/a
 import { adminQueryKeys } from '../../lib/api/queryKeys';
 import { AssignServicesModal } from './AssignServicesModal';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { Button } from '../../components/Button';
 
 const PHONE_REGEX = /^[0-9+() -]{7,32}$/;
 
@@ -37,7 +38,6 @@ const providerSchema = z.object({
   sort_order: z.coerce.number().min(0),
 });
 
-
 type ProviderFormData = z.infer<typeof providerSchema>;
 
 export const ProvidersPage: React.FC = () => {
@@ -54,8 +54,6 @@ export const ProvidersPage: React.FC = () => {
   const initialFocusRef = useRef<HTMLInputElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const [assignTriggerEl, setAssignTriggerEl] = useState<HTMLButtonElement | null>(null);
-
-  useFocusTrap(modalRef, isFormModalOpen);
 
   // Minimal list query
   const {
@@ -151,31 +149,14 @@ export const ProvidersPage: React.FC = () => {
     setIsFormModalOpen(false);
     setEditingProviderId(null);
     setServerError(null);
-    if (triggerRef.current) {
-      triggerRef.current.focus();
-    }
   };
 
-  // Keyboard Escape listener & focus management
-  useEffect(() => {
-    if (!isFormModalOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isSubmitting) {
-        setIsFormModalOpen(false);
-        setEditingProviderId(null);
-        setServerError(null);
-        if (triggerRef.current) {
-          triggerRef.current.focus();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    if (initialFocusRef.current) {
-      initialFocusRef.current.focus();
-    }
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFormModalOpen, isSubmitting]);
-
+  useFocusTrap(modalRef, isFormModalOpen, {
+    onEscape: closeFormModal,
+    disableEscape: isSubmitting,
+    initialFocusRef,
+    returnFocusRef: triggerRef,
+  });
 
   const onSubmit = (formData: ProviderFormData) => {
     setServerError(null);
@@ -195,9 +176,13 @@ export const ProvidersPage: React.FC = () => {
 
   const filteredProviders = providers.filter((p) => {
     if (filterStatus === 'active') return p.is_active;
-    if (filterStatus === 'inactive') return !p.is_active;
+    if (filterStatus === 'inactive') return !s_isActive(p.is_active);
     return true;
   });
+
+  function s_isActive(active: boolean) {
+    return active;
+  }
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
@@ -343,7 +328,6 @@ export const ProvidersPage: React.FC = () => {
                   Editar
                 </button>
               </div>
-
             </div>
           ))}
         </div>
@@ -376,7 +360,7 @@ export const ProvidersPage: React.FC = () => {
             </div>
 
             {serverError && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300">
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300" role="alert">
                 {serverError}
               </div>
             )}
@@ -483,21 +467,23 @@ export const ProvidersPage: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={closeFormModal}
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition-colors disabled:opacity-50"
+                  className="text-xs px-4 py-2"
                 >
                   Cancelar
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  isLoading={isSubmitting}
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold rounded-xl text-xs transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="text-xs px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold"
                 >
-                  {isSubmitting ? 'Guardando...' : editingProviderId ? 'Guardar Cambios' : 'Crear Profesional'}
-                </button>
+                  {editingProviderId ? 'Guardar Cambios' : 'Crear Profesional'}
+                </Button>
               </div>
             </form>
           </div>

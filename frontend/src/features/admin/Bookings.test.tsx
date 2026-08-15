@@ -97,13 +97,18 @@ describe('BookingsListPage & BookingDetailPage Integration', () => {
     );
 
     expect(await screen.findByText('Gestión de Reservas')).toBeDefined();
-    expect(await screen.findByText('Juan Pérez')).toBeDefined();
-    expect(await screen.findByText('Confirmada')).toBeDefined();
+    const customerInstances = await screen.findAllByText('Juan Pérez');
+    expect(customerInstances.length).toBeGreaterThanOrEqual(1);
 
-    // Verify booking card is a semantic Link element pointing to /admin/reservas/b1
-    const link = screen.getByRole('link', { name: /Juan Pérez/i });
-    expect(link).toBeDefined();
-    expect(link.getAttribute('href')).toBe('/admin/reservas/b1');
+    const statusInstances = await screen.findAllByText('Confirmada');
+    expect(statusInstances.length).toBeGreaterThanOrEqual(1);
+
+    // Verify desktop link (Ver detalle) and mobile card link both point to /admin/reservas/b1
+    const detailLink = screen.getByRole('link', { name: /Ver detalle/i });
+    expect(detailLink.getAttribute('href')).toBe('/admin/reservas/b1');
+
+    const mobileLink = screen.getByRole('link', { name: /Juan Pérez/i });
+    expect(mobileLink.getAttribute('href')).toBe('/admin/reservas/b1');
 
     const statusSelect = screen.getByLabelText('Estado');
     fireEvent.change(statusSelect, { target: { value: 'confirmed' } });
@@ -114,7 +119,6 @@ describe('BookingsListPage & BookingDetailPage Integration', () => {
       );
     });
   });
-
 
   it('renders booking detail page with customer PII', async () => {
     const queryClient = createTestQueryClient();

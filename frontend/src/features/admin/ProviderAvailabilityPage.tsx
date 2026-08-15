@@ -16,6 +16,7 @@ import { adminQueryKeys, publicQueryKeys } from '../../lib/api/queryKeys';
 import { normalizeIntervals } from '../../lib/utils/availabilityUtils';
 import { CreateTimeOffModal } from './CreateTimeOffModal';
 import { ConfirmModal } from '../../components/ConfirmModal';
+import { Button } from '../../components/Button';
 
 interface DaySchedule {
   active: boolean;
@@ -437,21 +438,15 @@ export const ProviderAvailabilityPage: React.FC = () => {
             </p>
           </div>
 
-          <button
+          <Button
             type="button"
             onClick={handleSaveSchedule}
+            isLoading={replaceRulesMutation.isPending}
             disabled={!isScheduleDirty || hasScheduleErrors || replaceRulesMutation.isPending}
-            className="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold rounded-xl text-xs transition-colors disabled:opacity-50 flex items-center gap-2 self-start sm:self-auto"
+            className="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold rounded-xl text-xs transition-colors self-start sm:self-auto"
           >
-            {replaceRulesMutation.isPending ? (
-              <>
-                <span className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                <span>Guardando...</span>
-              </>
-            ) : (
-              'Guardar Horarios'
-            )}
-          </button>
+            Guardar Horarios
+          </Button>
         </div>
 
         {/* Days List */}

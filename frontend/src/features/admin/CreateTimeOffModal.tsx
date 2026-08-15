@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../auth/useAuth';
 import { createAdminTimeOff, type AdminTimeOffCreate } from '../../lib/api/admin';
@@ -6,6 +6,7 @@ import { ApiError } from '../../lib/api/client';
 import { adminQueryKeys, publicQueryKeys } from '../../lib/api/queryKeys';
 import { getInitialLocalDate } from '../../lib/utils/availabilityUtils';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { Button } from '../../components/Button';
 
 interface CreateTimeOffModalProps {
   providerId: string;
@@ -41,26 +42,11 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
   const [clientError, setClientError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  useFocusTrap(modalRef, isOpen);
-
   const handleClose = useCallback(() => {
     setClientError(null);
     setServerError(null);
     onClose();
-    if (triggerRef?.current) {
-      triggerRef.current.focus();
-    }
-  }, [onClose, triggerRef]);
-
-  // Initial focus on open
-  useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => {
-        startInputRef.current?.focus();
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
+  }, [onClose]);
 
   const createMutation = useMutation({
     mutationFn: (data: AdminTimeOffCreate) => createAdminTimeOff(data),
@@ -83,17 +69,12 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
 
   const isSubmitting = createMutation.isPending;
 
-  // Keyboard Escape listener
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isSubmitting) {
-        handleClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isSubmitting, handleClose]);
+  useFocusTrap(modalRef, isOpen, {
+    onEscape: handleClose,
+    disableEscape: isSubmitting,
+    initialFocusRef: startInputRef,
+    returnFocusRef: triggerRef,
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -240,28 +221,23 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
 
           {/* Footer actions */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition-colors disabled:opacity-50"
+              className="text-xs px-4 py-2"
             >
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              isLoading={isSubmitting}
               disabled={isSubmitting}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold rounded-xl text-xs transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="text-xs px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold"
             >
-              {isSubmitting ? (
-                <>
-                  <span className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                  <span>Guardando...</span>
-                </>
-              ) : (
-                'Registrar Bloqueo'
-              )}
-            </button>
+              Registrar Bloqueo
+            </Button>
           </div>
         </form>
       </div>

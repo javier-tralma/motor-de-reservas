@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +11,7 @@ import {
 import type { AdminServiceDetail } from '../../lib/api/admin';
 import { adminQueryKeys } from '../../lib/api/queryKeys';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { Button } from '../../components/Button';
 
 const serviceSchema = z.object({
   name: z.string().trim().min(1, 'El nombre es obligatorio').max(120, 'Máximo 120 caracteres'),
@@ -20,7 +21,6 @@ const serviceSchema = z.object({
   is_active: z.boolean(),
   sort_order: z.coerce.number().min(0),
 });
-
 
 type ServiceFormData = z.infer<typeof serviceSchema>;
 
@@ -33,8 +33,6 @@ export const ServicesPage: React.FC = () => {
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const initialFocusRef = useRef<HTMLInputElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
-
-  useFocusTrap(modalRef, isModalOpen);
 
   const {
     data: services = [],
@@ -123,31 +121,14 @@ export const ServicesPage: React.FC = () => {
     setIsModalOpen(false);
     setEditingService(null);
     setServerError(null);
-    if (triggerRef.current) {
-      triggerRef.current.focus();
-    }
   };
 
-  // Keyboard Escape listener & Focus Trap for Modal
-  useEffect(() => {
-    if (!isModalOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isSubmitting) {
-        setIsModalOpen(false);
-        setEditingService(null);
-        setServerError(null);
-        if (triggerRef.current) {
-          triggerRef.current.focus();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    if (initialFocusRef.current) {
-      initialFocusRef.current.focus();
-    }
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isModalOpen, isSubmitting]);
-
+  useFocusTrap(modalRef, isModalOpen, {
+    onEscape: closeModal,
+    disableEscape: isSubmitting,
+    initialFocusRef,
+    returnFocusRef: triggerRef,
+  });
 
   const onSubmit = (formData: ServiceFormData) => {
     setServerError(null);
@@ -309,7 +290,7 @@ export const ServicesPage: React.FC = () => {
         </div>
       )}
 
-      {/* Modal / Drawer for Create / Edit Service */}
+      {/* Modal for Create / Edit Service */}
       {isModalOpen && (
         <div
           className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
@@ -336,7 +317,7 @@ export const ServicesPage: React.FC = () => {
             </div>
 
             {serverError && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300">
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300" role="alert">
                 {serverError}
               </div>
             )}
@@ -447,21 +428,23 @@ export const ServicesPage: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={closeModal}
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition-colors disabled:opacity-50"
+                  className="text-xs px-4 py-2"
                 >
                   Cancelar
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  isLoading={isSubmitting}
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold rounded-xl text-xs transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="text-xs px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold"
                 >
-                  {isSubmitting ? 'Guardando...' : editingService ? 'Guardar Cambios' : 'Crear Servicio'}
-                </button>
+                  {editingService ? 'Guardar Cambios' : 'Crear Servicio'}
+                </Button>
               </div>
             </form>
           </div>

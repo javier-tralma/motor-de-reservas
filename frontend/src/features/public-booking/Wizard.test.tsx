@@ -162,7 +162,7 @@ describe('Step 1: Services Matrix', () => {
       </QueryClientProvider>
     );
 
-    expect(await screen.findByRole('alert')).toBeDefined();
+    expect(await screen.findByRole('status')).toBeDefined();
     expect(screen.getByText(/Error al cargar servicios/i)).toBeDefined();
 
     fireEvent.click(screen.getByRole('button', { name: /Reintentar/i }));
@@ -289,7 +289,7 @@ describe('Step 2: Providers Matrix & Empty/Loading/Error States', () => {
     fireEvent.click(await screen.findByLabelText(/Corte de Cabello/i));
     fireEvent.click(screen.getByRole('button', { name: /Continuar/i }));
 
-    expect(await screen.findByRole('alert')).toBeDefined();
+    expect(await screen.findByRole('status')).toBeDefined();
     expect(screen.getByText(/Error al cargar profesionales/i)).toBeDefined();
 
     const nextBtn = screen.getByRole('button', { name: /Continuar/i });
@@ -450,8 +450,7 @@ describe('Step 3: Availability Matrix', () => {
     fireEvent.click(await screen.findByLabelText(/Camila Rojas/i));
     fireEvent.click(screen.getByRole('button', { name: /Continuar/i }));
 
-    expect(await screen.findByRole('alert')).toBeDefined();
-    expect(screen.getByText(/Error al cargar horarios/i)).toBeDefined();
+    expect(await screen.findByText(/Error al cargar horarios/i)).toBeDefined();
 
     fireEvent.click(screen.getByRole('button', { name: /Reintentar/i }));
     expect(await screen.findByRole('button', { name: '14:00' })).toBeDefined();

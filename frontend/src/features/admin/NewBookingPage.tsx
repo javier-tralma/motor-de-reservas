@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -11,6 +11,7 @@ import { Button } from '../../components/Button';
 import { TextField } from '../../components/TextField';
 import { TextArea } from '../../components/TextArea';
 import { RadioCard } from '../../components/RadioCard';
+import { InlineAlert } from '../../components/InlineAlert';
 import type { AdminBookingCreateRequest } from '../../lib/api/admin';
 import { useAuth } from '../auth/useAuth';
 
@@ -19,12 +20,14 @@ export function NewBookingPage() {
   const queryClient = useQueryClient();
   const { business } = useAuth();
   const idempotencyManagerRef = useRef<IdempotencyManager>(new IdempotencyManager());
+  const conflictAlertRef = useRef<HTMLDivElement | null>(null);
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [serviceId, setServiceId] = useState<string>('');
   const [providerId, setProviderId] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<SlotPublic | null>(null);
+  const [slotConflictError, setSlotConflictError] = useState<string | null>(null);
   
   const [customerData, setCustomerData] = useState({
     name: '',
@@ -64,6 +67,7 @@ export function NewBookingPage() {
       const err = error as ApiError;
       if (err?.code === 'slot_unavailable') {
         await queryClient.invalidateQueries({ queryKey: publicQueryKeys.availabilityRoot() });
+        setSlotConflictError('El horario seleccionado ya no está disponible. Por favor, elige otro.');
         setStep(3);
         setSelectedSlot(null);
       } else if (err?.code === 'idempotency_conflict') {
@@ -71,6 +75,13 @@ export function NewBookingPage() {
       }
     },
   });
+
+  // Focus conflict alert on step 3 if conflict occurred
+  useEffect(() => {
+    if (step === 3 && slotConflictError) {
+      conflictAlertRef.current?.focus();
+    }
+  }, [step, slotConflictError]);
 
   const activeServices = services?.filter(s => s.is_active) || [];
   const activeProviders = providers?.filter(p => p.is_active) || [];
@@ -99,7 +110,7 @@ export function NewBookingPage() {
 
     createMutation.mutate({
       ...payload,
-      provider_id: providerId, // ensure string
+      provider_id: providerId,
       client_request_id,
     } as AdminBookingCreateRequest);
   };
@@ -115,7 +126,6 @@ export function NewBookingPage() {
         {step === 1 && (
           <div>
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-
               Seleccionar Servicio
             </h2>
             {loadingServices ? (
@@ -142,6 +152,7 @@ export function NewBookingPage() {
                       setServiceId(s.id);
                       setProviderId('');
                       setSelectedSlot(null);
+                      setSlotConflictError(null);
                       handleNext();
                     }}
                   />
@@ -155,7 +166,6 @@ export function NewBookingPage() {
           <div>
             <button onClick={handleBack} className="text-indigo-600 text-sm mb-4">← Volver</button>
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-
               Seleccionar Profesional
             </h2>
             {loadingProviders ? (
@@ -180,6 +190,7 @@ export function NewBookingPage() {
                     onChange={() => {
                       setProviderId(p.id);
                       setSelectedSlot(null);
+                      setSlotConflictError(null);
                       handleNext();
                     }}
                   />
@@ -193,13 +204,19 @@ export function NewBookingPage() {
           <div>
             <button onClick={handleBack} className="text-indigo-600 text-sm mb-4">← Volver</button>
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-
               Fecha y Hora
             </h2>
 
-            {createMutation.isError && (createMutation.error as ApiError)?.code === 'slot_unavailable' && (
-              <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
-                El horario seleccionado ya no está disponible. Por favor, elige otro.
+            {slotConflictError && (
+              <div className="mb-4">
+                <InlineAlert
+                  ref={conflictAlertRef}
+                  type="error"
+                  isUrgent={true}
+                  tabIndex={-1}
+                  title="Horario no disponible"
+                  message={slotConflictError}
+                />
               </div>
             )}
             
@@ -212,6 +229,7 @@ export function NewBookingPage() {
                 onChange={(e) => {
                   setSelectedDate(e.target.value);
                   setSelectedSlot(null);
+                  setSlotConflictError(null);
                 }}
                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
@@ -234,8 +252,11 @@ export function NewBookingPage() {
                     {availability?.slots.map((slot: SlotPublic) => (
                       <button
                         key={slot.starts_at}
-                        onClick={() => setSelectedSlot(slot)}
-                        className={`p-2 text-sm rounded-md border ${
+                        onClick={() => {
+                          setSelectedSlot(slot);
+                          setSlotConflictError(null);
+                        }}
+                        className={`p-2 text-sm rounded-md border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                           selectedSlot?.starts_at === slot.starts_at
                             ? 'bg-indigo-600 text-white border-indigo-600'
                             : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-500'
@@ -303,19 +324,25 @@ export function NewBookingPage() {
               />
             </div>
 
-            {createMutation.isError && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
-                {(createMutation.error as ApiError)?.message || 'Error al crear la reserva'}
+            {createMutation.isError && (createMutation.error as ApiError)?.code !== 'slot_unavailable' && (
+              <div className="mt-4">
+                <InlineAlert
+                  type="error"
+                  isUrgent={true}
+                  title="Error al crear la reserva"
+                  message={(createMutation.error as ApiError)?.message || 'Error al procesar la reserva'}
+                />
               </div>
             )}
 
             <div className="mt-6">
               <Button 
                 onClick={handleCreate}
+                isLoading={createMutation.isPending}
                 disabled={!customerData.name || !customerData.email || !customerData.phone || createMutation.isPending}
                 className="w-full"
               >
-                {createMutation.isPending ? 'Creando...' : 'Confirmar Reserva'}
+                Confirmar Reserva
               </Button>
             </div>
           </div>

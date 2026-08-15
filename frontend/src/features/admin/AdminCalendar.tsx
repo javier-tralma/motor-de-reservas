@@ -33,7 +33,8 @@ export const AdminCalendar: React.FC<AdminCalendarProps> = ({
   const isInitialMount = useRef(true);
   const isResizeTriggered = useRef(false);
   const currentViewRef = useRef<string>(
-    typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT ? VIEW_MOBILE : VIEW_DESKTOP
+    userSelectedView ||
+      (typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT ? VIEW_MOBILE : VIEW_DESKTOP)
   );
 
   const handleDatesSet = useCallback(
@@ -78,6 +79,15 @@ export const AdminCalendar: React.FC<AdminCalendarProps> = ({
   );
 
   useEffect(() => {
+    if (userSelectedView && calendarRef.current) {
+      const calApi = calendarRef.current.getApi();
+      if (calApi && calApi.view.type !== userSelectedView) {
+        calApi.changeView(userSelectedView);
+      }
+    }
+  }, [userSelectedView]);
+
+  useEffect(() => {
     const handleResize = () => {
       if (userSelectedView) return; // Respect user's explicit view choice
 
@@ -104,7 +114,8 @@ export const AdminCalendar: React.FC<AdminCalendarProps> = ({
       ref={calendarRef}
       plugins={[timeGridPlugin, listPlugin]}
       initialView={
-        typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT ? VIEW_MOBILE : VIEW_DESKTOP
+        userSelectedView ||
+        (typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT ? VIEW_MOBILE : VIEW_DESKTOP)
       }
       headerToolbar={{
         left: 'prev,next today',
