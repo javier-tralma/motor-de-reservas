@@ -229,9 +229,39 @@ class BookingService:
         canonical_str = json.dumps(canonical_dict, sort_keys=True)
         return hashlib.sha256(canonical_str.encode("utf-8")).hexdigest()
 
+    def check_idempotency_replay(
+        self,
+        business_id: uuid.UUID,
+        client_request_id: uuid.UUID | None,
+        request: BookingCreateRequest,
+    ) -> tuple[str, Booking | None]:
+        """
+        Explicit, read-only check to resolve idempotency before rate limiting or domain execution.
+        Returns:
+            ("VALID_REPLAY", existing_booking) if valid replay (same fingerprint).
+            ("INCOMPATIBLE_REPLAY", None) if existing booking has a different fingerprint.
+            ("NEW", None) if client_request_id is None or no existing booking exists.
+        """
+        if not client_request_id:
+            return ("NEW", None)
+
+        fingerprint = self._generate_fingerprint(request)
+        existing_booking = self.db.execute(
+            select(Booking).filter_by(business_id=business_id, client_request_id=client_request_id)
+        ).scalar_one_or_none()
+
+        if existing_booking:
+            if existing_booking.request_fingerprint == fingerprint:
+                return ("VALID_REPLAY", existing_booking)
+            else:
+                return ("INCOMPATIBLE_REPLAY", None)
+
+        return ("NEW", None)
+
     def _check_idempotency_fallback(
         self, business_id: uuid.UUID, client_request_id: uuid.UUID | None, fingerprint: str, expire_all: bool = True
     ) -> tuple[Booking, bool] | None:
+
         if not client_request_id:
             return None
 

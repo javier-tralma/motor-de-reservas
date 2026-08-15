@@ -199,6 +199,7 @@ export const StepDateTime: React.FC<StepDateTimeProps> = ({
                       <button
                         key={slot.starts_at}
                         type="button"
+                        data-starts-at={slot.starts_at}
                         onClick={() => onSelectSlot(slot)}
                         className={`min-h-[44px] px-3 py-2 text-sm font-semibold rounded-lg border transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2f7fd3] ${
                           isSelected
@@ -228,6 +229,7 @@ export const StepDateTime: React.FC<StepDateTimeProps> = ({
                       <button
                         key={slot.starts_at}
                         type="button"
+                        data-starts-at={slot.starts_at}
                         onClick={() => onSelectSlot(slot)}
                         className={`min-h-[44px] px-3 py-2 text-sm font-semibold rounded-lg border transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2f7fd3] ${
                           isSelected
@@ -237,6 +239,7 @@ export const StepDateTime: React.FC<StepDateTimeProps> = ({
                       >
                         {timeStr}
                       </button>
+
                     );
                   })}
                 </div>

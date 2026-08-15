@@ -194,9 +194,12 @@ Formato estable:
 - `404`: recurso inexistente dentro del negocio actual.
 - `409`: conflicto de disponibilidad, idempotencia o transición.
 - `422`: contrato de entrada inválido.
+- `429`: límite de solicitudes excedido (`rate_limit_exceeded`), incluye cabecera `Retry-After`.
 - `500`: error inesperado sin detalles internos.
+- `503`: servicio o limitador no disponible temporalmente (`rate_limit_unavailable`).
 
 Usar códigos de máquina estables; el frontend no decide por texto humano.
+
 
 ## 7. Motor de disponibilidad
 
@@ -288,6 +291,12 @@ La API captura la violación conocida de exclusión y la traduce a `409 slot_una
 - **Protección CSRF**: Las peticiones mutativas (`POST`, `PUT`, `PATCH`, `DELETE`) en la administración verifican la coincidencia estricta del encabezado `Origin` con `FRONTEND_URL`.
 - **CORS**: Usa allowlist explícita con `allow_credentials=True`.
 - **Protección de datos**: No revelar si un email administrativo existe (respuesta genérica `401 invalid_credentials`).
+- **Rate Limiting**: Protección atómica basada en PostgreSQL (`rate_limits`) con ventana fija (Fixed Window).
+  - Admin login: 10 intentos por IP hasheada cada 15 minutos (900 s).
+  - Reserva pública: 5 solicitudes por IP hasheada cada 60 minutos (3600 s). Replays válidos de idempotencia omiten el consumo de cuota.
+  - La IP se anonimiza mediante HMAC-SHA-256 usando `RATE_LIMIT_SECRET`. Nunca se persiste ni registra la IP cruda.
+  - Se utiliza exclusivamente `Request.client.host`. Cabeceras de reenvío (`X-Forwarded-For`) se ignoran en esta etapa.
+  - Fallo seguro (fail-closed): un fallo de base de datos en el limitador retorna `503 rate_limit_unavailable`.
 
 
 ## 11. Email
@@ -336,6 +345,7 @@ DATABASE_URL
 BUSINESS_ID
 FRONTEND_URL
 SESSION_SECRET
+RATE_LIMIT_SECRET
 ADMIN_SESSION_TTL_HOURS
 ADMIN_EMAIL
 ADMIN_PASSWORD
@@ -349,6 +359,7 @@ Cada petición recibe `request_id`. Logs estructurados incluyen acción, resulta
 
 Checks mínimos:
 
+- `GET /health`: proceso vivo y disponible para sondeo de balanceadores/orquestadores.
 - `/health/live`: proceso vivo, sin dependencias.
 - `/health/ready`: conexión a base y migraciones compatibles.
 
@@ -359,13 +370,14 @@ Checks mínimos:
 - Funciones de intervalos, granularidad y reloj.
 - Motor de disponibilidad con matriz de bordes.
 - Transiciones de estado.
+- Rate limiting con reloj inyectable y HMAC de IP.
 - Conversión de zona horaria y snapshots.
 
 ### Integración con PostgreSQL real
 
 - Constraints, relaciones y scoping por negocio.
 - Exclusión de solapamientos.
-- Idempotencia.
+- Idempotencia y rate limiting atómico.
 - Dos transacciones concurrentes.
 - Endpoints públicos y administrativos críticos.
 
@@ -377,12 +389,14 @@ SQLite no sustituye estas pruebas porque no reproduce rangos, GiST ni concurrenc
 - Accesibilidad de selección de servicio, fecha y slot.
 - Adaptadores de contratos HTTP.
 
-### E2E
+### E2E (Playwright)
 
-- Reserva pública completa.
-- Login y cancelación administrativa.
-- Slot liberado después de cancelar.
-- Manejo visible de slot tomado durante la confirmación.
+- Ejecutado contra base de datos exclusiva `booking_e2e` en puerto `5434`.
+- Reserva pública completa en viewport móvil (320px).
+- Conflicto concurrente real con slot ocupado por helper y recuperación de formulario.
+- Login admin válido e inválido.
+- Transición administrativa de reserva creada en flujo de prueba.
+
 
 ## 15. Decisiones diferidas
 

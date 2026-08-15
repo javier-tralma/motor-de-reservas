@@ -264,7 +264,21 @@ Constraints e índices:
 La API pública nunca devuelve `id`, `business_id`, datos administrativos de email ni notas internas. `public_reference` permite recuperar solo un resumen limitado de confirmación.
 Para creación manual, la reserva usa obligatoriamente `source='admin'` y `email_delivery_status='not_requested'`, y no envía email.
 
+### 4.9 `rate_limits`
+
+| Columna | Tipo | Reglas |
+|---|---|---|
+| `subject_hash` | `varchar(64)` | PK, HMAC-SHA-256 de la IP normalizada |
+| `endpoint` | `varchar(50)` | PK, identificador del endpoint limitado |
+| `window_start` | `timestamptz` | PK, inicio del intervalo de ventana en UTC |
+| `count` | `integer` | no nulo, default `1` |
+
+Constraints e índices:
+- `PrimaryKeyConstraint("subject_hash", "endpoint", "window_start", name="pk_rate_limits")`
+- `Index("idx_rate_limits_window", "window_start")`
+
 ## 5. Prevención de doble reserva
+
 
 Habilitar `btree_gist` y crear una exclusión equivalente a:
 

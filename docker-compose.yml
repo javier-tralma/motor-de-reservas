@@ -23,5 +23,17 @@ services:
     tmpfs:
       - /var/lib/postgresql/data
 
+  db_e2e:
+    image: docker.io/library/postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: booking_e2e_user
+      POSTGRES_PASSWORD: booking_e2e_password
+      POSTGRES_DB: booking_e2e
+    ports:
+      - "5434:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+
 volumes:
   db_data:

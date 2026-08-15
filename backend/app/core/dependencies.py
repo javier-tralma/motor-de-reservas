@@ -1,4 +1,5 @@
 import uuid
+from collections.abc import Callable
 from datetime import datetime, timezone
 from typing import Annotated
 
@@ -6,12 +7,25 @@ from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.db import get_db
+from app.core.db import SessionLocal, get_db
+from app.core.rate_limit import RateLimiter
 from app.models.admin_session import AdminSession
 from app.models.admin_user import AdminUser
 from app.services.auth_service import AuthError, AuthService
 
 COOKIE_NAME = "booking_admin_session"
+
+
+def get_session_factory() -> Callable[[], Session]:
+    """Dependency providing a factory for creating independent database sessions."""
+    return SessionLocal
+
+
+def get_rate_limiter(
+    session_factory: Annotated[Callable[[], Session], Depends(get_session_factory)],
+) -> RateLimiter:
+    """Dependency providing a RateLimiter backed by independent session lifecycle."""
+    return RateLimiter(session_factory=session_factory, secret=settings.RATE_LIMIT_SECRET)
 
 
 def get_business_id() -> uuid.UUID:

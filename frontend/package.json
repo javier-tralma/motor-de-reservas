@@ -9,8 +9,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "cross-env NODE_ENV=test vitest run"
+    "test": "cross-env NODE_ENV=test vitest run",
+    "e2e:install": "playwright install chromium",
+    "e2e": "bash scripts/run_e2e.sh",
+    "test:e2e": "npm run e2e"
   },
+
   "dependencies": {
     "@fullcalendar/react": "^7.0.2",
     "@hookform/resolvers": "^5.7.1",
@@ -25,6 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.62.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^24.13.3",

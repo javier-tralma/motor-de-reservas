@@ -16,6 +16,7 @@ from app.api.admin import time_off as admin_time_off
 from app.api.endpoints import availability, bookings, public
 from app.api.endpoints.availability import DomainError
 from app.core.config import settings
+from app.core.rate_limit import RateLimitError
 from app.services.auth_service import AuthError
 
 app = FastAPI(title="Booking API")
@@ -37,6 +38,18 @@ app.include_router(admin_providers.router, prefix="/api/admin")
 app.include_router(admin_services.router, prefix="/api/admin")
 app.include_router(admin_time_off.router, prefix="/api/admin")
 app.include_router(admin_calendar_events.router, prefix="/api/admin")
+
+
+@app.exception_handler(RateLimitError)
+async def rate_limit_error_handler(request: Request, exc: RateLimitError):
+    headers = {}
+    if exc.retry_after is not None:
+        headers["Retry-After"] = str(exc.retry_after)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": {"code": exc.code, "message": exc.message, "details": {}, "request_id": str(uuid.uuid4())}},
+        headers=headers,
+    )
 
 
 @app.exception_handler(AuthError)
@@ -61,6 +74,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": {"code": code, "message": message, "details": details, "request_id": str(uuid.uuid4())}},
+        headers=exc.headers,
     )
 
 

@@ -1,12 +1,14 @@
+from collections.abc import Callable
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.csrf import verify_origin
 from app.core.db import get_db
-from app.core.dependencies import COOKIE_NAME, get_business_id, get_current_admin_and_session
+from app.core.dependencies import COOKIE_NAME, get_business_id, get_current_admin_and_session, get_session_factory
+from app.core.rate_limit import RateLimiter, RateLimitExceededError, get_subject_hash
 from app.models.admin_session import AdminSession
 from app.models.admin_user import AdminUser
 from app.models.business import Business
@@ -45,10 +47,26 @@ def _clear_session_cookie(response: Response) -> None:
 def login(
     payload: LoginRequest,
     response: Response,
+    http_request: Request,
     db: Annotated[Session, Depends(get_db)],
+    session_factory: Annotated[Callable[[], Session], Depends(get_session_factory)],
 ) -> AuthResponse:
+    # 1. Rate limiting before credentials evaluation
+    client_ip = http_request.client.host if http_request.client else None
+    subject_hash = get_subject_hash(client_ip, settings.RATE_LIMIT_SECRET)
+    limiter = RateLimiter(session_factory=session_factory, secret=settings.RATE_LIMIT_SECRET)
+    is_allowed, _, retry_after = limiter.consume(
+        endpoint="admin_login",
+        subject_hash=subject_hash,
+        limit=10,
+        window_seconds=900,
+    )
+    if not is_allowed:
+        raise RateLimitExceededError(retry_after=retry_after)
+
     business_id = get_business_id()
     business = db.query(Business).filter(Business.id == business_id).first()
+
     if not business:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -13,10 +13,14 @@ from alembic import command
 
 load_dotenv()
 
+os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("SESSION_SECRET", "test-session-secret-key-32-bytes-long")
+os.environ.setdefault("RATE_LIMIT_SECRET", "test-rate-limit-secret-key-32-bytes")
 from app.core.config import settings  # noqa: E402
 
+settings.APP_ENV = "test"
 settings.SESSION_SECRET = "test-session-secret-key-32-bytes-long"
+settings.RATE_LIMIT_SECRET = "test-rate-limit-secret-key-32-bytes"
 
 
 def validate_test_db_url(test_url_str: str, dev_url_str: str) -> str:
@@ -91,16 +95,34 @@ def db_session() -> Session:
     connection.close()
 
 
+@pytest.fixture(autouse=True)
+def clean_rate_limits():
+    import sqlalchemy as sa
+
+    with engine.connect() as conn:
+        conn.execute(sa.text("DELETE FROM rate_limits"))
+        conn.commit()
+    yield
+    with engine.connect() as conn:
+        conn.execute(sa.text("DELETE FROM rate_limits"))
+        conn.commit()
+
+
 @pytest.fixture(scope="function")
 def client(db_session):
-    """Fixture to provide a TestClient with overridden get_db."""
+    """Fixture to provide a TestClient with overridden get_db and get_session_factory."""
     from app.core.db import get_db
+    from app.core.dependencies import get_session_factory
     from app.main import app
 
     def override_get_db():
         yield db_session
 
+    def override_get_session_factory():
+        return TestingSessionLocal
+
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_session_factory] = override_get_session_factory
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()

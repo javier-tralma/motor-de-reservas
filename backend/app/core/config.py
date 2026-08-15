@@ -18,7 +18,16 @@ class Settings(BaseSettings):
     RESEND_API_KEY: str = ""
     EMAIL_FROM: str = "reservas@estudionomada.cl"
 
+    # Rate limiting (required, no silent default)
+    RATE_LIMIT_SECRET: str
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    @model_validator(mode="after")
+    def validate_rate_limit_settings(self) -> "Settings":
+        if not self.RATE_LIMIT_SECRET or not self.RATE_LIMIT_SECRET.strip():
+            raise ValueError("RATE_LIMIT_SECRET must be set and non-empty")
+        return self
 
     @model_validator(mode="after")
     def validate_session_settings(self) -> "Settings":

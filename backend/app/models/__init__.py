@@ -4,6 +4,7 @@ from .availability import AvailabilityRule, TimeOff
 from .booking import Booking, BookingSource, BookingStatus, EmailDeliveryStatus
 from .business import Business
 from .provider import Provider, ProviderService
+from .rate_limit import RateLimit
 from .service import Service
 
 __all__ = [
@@ -18,5 +19,6 @@ __all__ = [
     "Business",
     "Provider",
     "ProviderService",
+    "RateLimit",
     "Service",
 ]  # noqa: E501

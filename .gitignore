@@ -8,3 +8,8 @@ __pycache__
 .ruff_cache
 *.out
 *-results.json
+playwright-report
+test-results
+frontend/playwright-report
+frontend/test-results
+frontend/.playwright

@@ -69,11 +69,12 @@ export const LoginPage: React.FC = () => {
         } else {
           setServerError(err.message || 'Ocurrió un error inesperado.');
         }
-        setFocus('email');
+        setTimeout(() => setFocus('email'), 0);
       } else {
         setIsNetworkError(true);
         setServerError('No se pudo conectar con el servidor. Verifica tu conexión a internet.');
       }
+
     }
   };
 
