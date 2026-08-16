@@ -180,16 +180,16 @@ npm run e2e
 
 ## Despliegue en Producción (Render + Neon)
 
-El repositorio incluye el Blueprint [render.yaml](render.yaml) preparado para despliegue automatizado.
+El repositorio incluye el Blueprint [render.yaml](render.yaml) preparado para despliegue automatizado con `rootDir: backend`.
 
 ### Comandos de Construcción y Ejecución
 - **Build Command:**
   ```bash
-  cd frontend && npm ci && npm run build && cd ../backend && uv sync --frozen --no-dev
+  cd ../frontend && npm ci && npm run build && cd ../backend && uv sync --frozen --no-dev
   ```
 - **Start Command:**
   ```bash
-  cd backend && uv run alembic upgrade head && uv run python scripts/seed.py && uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
+  uv run alembic upgrade head && uv run python scripts/seed.py && uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
   ```
 
 ### Variables de Entorno de Producción Requeridas

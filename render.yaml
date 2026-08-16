@@ -4,9 +4,9 @@ services:
     runtime: python
     plan: free
     region: oregon
-    rootDir: .
-    buildCommand: cd frontend && npm ci && npm run build && cd ../backend && uv sync --frozen --no-dev
-    startCommand: cd backend && uv run alembic upgrade head && uv run python scripts/seed.py && uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    buildCommand: cd ../frontend && npm ci && npm run build && cd ../backend && uv sync --frozen --no-dev
+    startCommand: uv run alembic upgrade head && uv run python scripts/seed.py && uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
       - key: APP_ENV
@@ -35,5 +35,7 @@ services:
         sync: false
       - key: PYTHON_VERSION
         value: 3.14.0
+      - key: UV_VERSION
+        value: 0.12.3
       - key: NODE_VERSION
         value: 24
