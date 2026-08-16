@@ -106,26 +106,26 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="create-time-off-modal-title"
       ref={modalRef}
     >
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-5 relative">
+      <div className="bg-[#fffdf9] border border-[#dfe4df] w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-5 relative text-left">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="flex items-center justify-between border-b border-[#dfe4df] pb-3">
           <div>
-            <h2 id="create-time-off-modal-title" className="text-lg font-bold text-white font-serif">
+            <h2 id="create-time-off-modal-title" className="text-lg font-bold text-[#1f2a27]">
               Registrar Bloqueo o Ausencia
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">Profesional: {providerName}</p>
+            <p className="text-xs text-[#66736e] mt-0.5">Profesional: {providerName}</p>
           </div>
           <button
             type="button"
             onClick={handleClose}
             disabled={isSubmitting}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors disabled:opacity-50"
+            className="p-1 rounded-lg text-[#66736e] hover:text-[#1f2a27] hover:bg-[#f0eee9] transition-colors disabled:opacity-50"
             aria-label="Cerrar modal"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -136,12 +136,12 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
 
         {/* Error Alerts */}
         {clientError && (
-          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-300" role="alert">
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900" role="alert">
             {clientError}
           </div>
         )}
         {serverError && (
-          <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300" role="alert">
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-900" role="alert">
             {serverError}
           </div>
         )}
@@ -149,7 +149,7 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Start Section */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#66736e]">
               Inicio del bloqueo
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -161,7 +161,7 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
                 disabled={isSubmitting}
                 required
                 aria-label="Fecha de inicio"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                className="w-full bg-[#fffdf9] border border-[#dfe4df] rounded-xl px-3 py-2 text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50"
               />
               <input
                 type="time"
@@ -170,14 +170,14 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
                 disabled={isSubmitting}
                 required
                 aria-label="Hora de inicio"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                className="w-full bg-[#fffdf9] border border-[#dfe4df] rounded-xl px-3 py-2 text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50"
               />
             </div>
           </div>
 
           {/* End Section */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#66736e]">
               Término del bloqueo
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -188,7 +188,7 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
                 disabled={isSubmitting}
                 required
                 aria-label="Fecha de término"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                className="w-full bg-[#fffdf9] border border-[#dfe4df] rounded-xl px-3 py-2 text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50"
               />
               <input
                 type="time"
@@ -197,15 +197,15 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
                 disabled={isSubmitting}
                 required
                 aria-label="Hora de término"
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                className="w-full bg-[#fffdf9] border border-[#dfe4df] rounded-xl px-3 py-2 text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50"
               />
             </div>
           </div>
 
           {/* Reason */}
           <div className="space-y-1.5">
-            <label htmlFor="time-off-reason" className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
-              Motivo <span className="text-slate-500 font-normal lowercase">(opcional)</span>
+            <label htmlFor="time-off-reason" className="block text-xs font-semibold uppercase tracking-wider text-[#66736e]">
+              Motivo <span className="text-[#66736e] font-normal lowercase">(opcional)</span>
             </label>
             <input
               id="time-off-reason"
@@ -215,12 +215,12 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               disabled={isSubmitting}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+              className="w-full bg-[#fffdf9] border border-[#dfe4df] rounded-xl px-3 py-2 text-sm text-[#1f2a27] placeholder-[#66736e]/60 focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50"
             />
           </div>
 
           {/* Footer actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#dfe4df]">
             <Button
               type="button"
               variant="outline"
@@ -234,7 +234,7 @@ export const CreateTimeOffModal: React.FC<CreateTimeOffModalProps> = ({
               type="submit"
               isLoading={isSubmitting}
               disabled={isSubmitting}
-              className="text-xs px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold"
+              className="text-xs px-4 py-2"
             >
               Registrar Bloqueo
             </Button>

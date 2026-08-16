@@ -118,25 +118,25 @@ export function NewBookingPage() {
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Nueva Reserva</h1>
-        <p className="text-gray-500 mt-1">Creación manual de reserva desde administración</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#1f2a27] tracking-tight">Nueva Reserva</h1>
+        <p className="text-[#66736e] text-sm mt-1">Creación manual de reserva desde administración</p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      <div className="bg-[#fffdf9] rounded-2xl shadow-xs border border-[#dfe4df] p-6 sm:p-8">
         {step === 1 && (
           <div>
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <h2 className="text-lg font-bold text-[#1f2a27] mb-4 flex items-center gap-2">
               Seleccionar Servicio
             </h2>
             {loadingServices ? (
-              <p>Cargando servicios...</p>
+              <p className="text-[#66736e] text-sm">Cargando servicios...</p>
             ) : errorServices ? (
-              <div role="alert" className="text-red-600 space-y-2">
+              <div role="alert" className="text-rose-700 space-y-2">
                 <p>Error al cargar los servicios.</p>
-                <Button onClick={() => refetchServices()} variant="secondary">Reintentar</Button>
+                <Button onClick={() => refetchServices()} variant="outline">Reintentar</Button>
               </div>
             ) : activeServices.length === 0 ? (
-              <p className="text-gray-500">No hay servicios activos disponibles.</p>
+              <p className="text-[#66736e] text-sm">No hay servicios activos disponibles.</p>
             ) : (
               <div className="space-y-3">
                 {activeServices.map((s) => (
@@ -164,19 +164,19 @@ export function NewBookingPage() {
 
         {step === 2 && (
           <div>
-            <button onClick={handleBack} className="text-indigo-600 text-sm mb-4">← Volver</button>
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <button onClick={handleBack} className="text-[#176b5b] hover:text-[#125548] text-sm font-semibold mb-4 transition-colors">← Volver</button>
+            <h2 className="text-lg font-bold text-[#1f2a27] mb-4 flex items-center gap-2">
               Seleccionar Profesional
             </h2>
             {loadingProviders ? (
-              <p>Cargando profesionales...</p>
+              <p className="text-[#66736e] text-sm">Cargando profesionales...</p>
             ) : errorProviders ? (
-              <div role="alert" className="text-red-600 space-y-2">
+              <div role="alert" className="text-rose-700 space-y-2">
                 <p>Error al cargar los profesionales.</p>
-                <Button onClick={() => refetchProviders()} variant="secondary">Reintentar</Button>
+                <Button onClick={() => refetchProviders()} variant="outline">Reintentar</Button>
               </div>
             ) : activeProviders.length === 0 ? (
-              <p className="text-gray-500">No hay profesionales activos para este servicio.</p>
+              <p className="text-[#66736e] text-sm">No hay profesionales activos para este servicio.</p>
             ) : (
               <div className="space-y-3">
                 {activeProviders.map((p) => (
@@ -202,8 +202,8 @@ export function NewBookingPage() {
 
         {step === 3 && (
           <div>
-            <button onClick={handleBack} className="text-indigo-600 text-sm mb-4">← Volver</button>
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <button onClick={handleBack} className="text-[#176b5b] hover:text-[#125548] text-sm font-semibold mb-4 transition-colors">← Volver</button>
+            <h2 className="text-lg font-bold text-[#1f2a27] mb-4 flex items-center gap-2">
               Fecha y Hora
             </h2>
 
@@ -221,7 +221,7 @@ export function NewBookingPage() {
             )}
             
             <div className="mb-6">
-              <label htmlFor="booking-date" className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+              <label htmlFor="booking-date" className="block text-xs font-medium text-[#66736e] mb-1.5">Fecha</label>
               <input 
                 id="booking-date"
                 type="date"
@@ -231,35 +231,36 @@ export function NewBookingPage() {
                   setSelectedSlot(null);
                   setSlotConflictError(null);
                 }}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="block w-full rounded-xl border-[#dfe4df] bg-[#fffdf9] text-[#1f2a27] shadow-xs focus:border-[#176b5b] focus:ring-[#176b5b] text-sm px-3 py-2"
               />
             </div>
 
             {selectedDate && (
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Horarios disponibles</h3>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#66736e] mb-2">Horarios disponibles</h3>
                 {loadingAvailability ? (
-                  <p>Cargando horarios...</p>
+                  <p className="text-[#66736e] text-sm">Cargando horarios...</p>
                 ) : errorAvailability ? (
-                  <div role="alert" className="text-red-600 space-y-2">
+                  <div role="alert" className="text-rose-700 space-y-2">
                     <p>Error al cargar los horarios disponibles.</p>
-                    <Button onClick={() => refetchAvailability()} variant="secondary">Reintentar</Button>
+                    <Button onClick={() => refetchAvailability()} variant="outline">Reintentar</Button>
                   </div>
                 ) : availability?.slots.length === 0 ? (
-                  <p className="text-gray-500">No hay horarios disponibles.</p>
+                  <p className="text-[#66736e] text-sm">No hay horarios disponibles para esta fecha.</p>
                 ) : (
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {availability?.slots.map((slot: SlotPublic) => (
                       <button
                         key={slot.starts_at}
+                        type="button"
                         onClick={() => {
                           setSelectedSlot(slot);
                           setSlotConflictError(null);
                         }}
-                        className={`p-2 text-sm rounded-md border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                        className={`p-2.5 text-sm font-medium rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#176b5b] transition-colors ${
                           selectedSlot?.starts_at === slot.starts_at
-                            ? 'bg-indigo-600 text-white border-indigo-600'
-                            : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-500'
+                            ? 'bg-[#176b5b] text-white border-[#176b5b]'
+                            : 'bg-[#fffdf9] text-[#1f2a27] border-[#dfe4df] hover:border-[#176b5b]'
                         }`}
                       >
                         {new Intl.DateTimeFormat('es-CL', {
@@ -289,8 +290,8 @@ export function NewBookingPage() {
 
         {step === 4 && (
           <div>
-            <button onClick={handleBack} className="text-indigo-600 text-sm mb-4">← Volver</button>
-            <h2 className="text-lg font-semibold mb-4">Datos del Cliente</h2>
+            <button onClick={handleBack} className="text-[#176b5b] hover:text-[#125548] text-sm font-semibold mb-4 transition-colors">← Volver</button>
+            <h2 className="text-lg font-bold text-[#1f2a27] mb-4">Datos del Cliente</h2>
             
             <div className="space-y-4">
               <TextField

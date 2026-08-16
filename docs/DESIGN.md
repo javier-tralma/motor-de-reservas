@@ -204,9 +204,17 @@ No mostrar detalles técnicos del envío. Si el email falla de forma conocida, l
 
 ## 6. Panel administrativo
 
+### Dirección visual del panel
+El panel administrativo utiliza una dirección clara, sobria y editorial pensada para herramientas de gestión diaria:
+- Canvas cálido `#f7f5f0` con superficies en `#fffdf9` y bordes discretos `#dfe4df`.
+- Sidebar y cabeceras secundarias con tono piedra sutil `#f0eee9`.
+- Color primario de marca `#176b5b` (hover `#125548`) reservado estrictamente para acciones primarias, selecciones activas y estados confirmados.
+- Acciones secundarias en outline o ghost sobre superficies claras.
+- Prohibición explícita de estética dark/neón en administración (`slate-900`, `slate-950`, fondos azul-negro con texto blanco, gradientes decorativos o glassmorphism innecesario).
+
 ### Navegación
 
-Sidebar en escritorio y drawer en pantallas estrechas:
+Sidebar en escritorio y drawer accesible en pantallas estrechas:
 
 ```text
 Resumen
@@ -214,45 +222,47 @@ Calendario
 Reservas
 Servicios
 Profesionales
-Disponibilidad
-Configuración
 ```
 
 Mostrar el nombre del negocio y la cuenta activa. La acción de cerrar sesión está separada de las acciones operativas.
 
 ### Dashboard
 
-Encabezado:
+Encabezado sobrio:
 
 ```text
-Buenas tardes, Javier
+Buenas tardes, Javier.
 Esta es la agenda de hoy.
 ```
 
-Indicadores útiles y limitados:
+Tarjetas de resumen claras sobre fondo `#fffdf9` con bordes `#dfe4df`:
+- Total hoy
+- Confirmadas
+- Completadas
+- Canceladas
+- Inasistencias
 
-- reservas de hoy;
-- confirmadas restantes;
-- completadas;
-- ocupación aproximada solo si puede calcularse correctamente.
+La pieza principal es «Próxima reserva» y luego la lista de «Agenda del día» con horas en fuente mono tabular y badges legibles.
 
-La pieza principal es «Próxima reserva» y luego una agenda cronológica. No inventar ingresos si no existen estados y reglas suficientes para una métrica confiable.
+### Calendario (FullCalendar v7)
 
-### Calendario
+FullCalendar v7 importado como chunk lazy administrativo con sus hojas oficiales de tema:
+```ts
+import '@fullcalendar/react/themes/classic/theme.css';
+import '@fullcalendar/react/themes/classic/palette.css';
+```
 
-FullCalendar con vistas día, semana y lista. La vista inicial depende del ancho: día/lista en móvil, semana en escritorio.
+Tokens personalizados mediante las variables oficiales de FullCalendar v7 (`--fc-classic-*`):
+- `--fc-classic-primary: #176b5b;`
+- `--fc-classic-background: #fffdf9;`
+- `--fc-classic-border: #dfe4df;`
+- `--fc-classic-button: #fffdf9;`
+- `--fc-classic-button-border: #dfe4df;`
+- `--fc-classic-button-foreground: #1f2a27;`
+- `--fc-classic-button-strong: #176b5b;`
+- `--fc-classic-button-strong-foreground: #ffffff;`
 
-Cada evento muestra hora, cliente abreviado y servicio. Color o marca secundaria identifica profesional, pero texto y filtros siguen disponibles.
-
-Al seleccionar una reserva, abrir drawer en escritorio y pantalla/modal accesible en móvil con:
-
-- estado;
-- cliente y contacto;
-- servicio y snapshots;
-- profesional;
-- horario;
-- fuente y notas;
-- acciones permitidas.
+Vistas día, semana y lista. Al hacer clic en una reserva se navega al detalle `/admin/reservas/:id`. Los eventos de time off no navegan. En caso de error o ausencia de eventos, se muestran avisos claros y accesibles.
 
 Confirmar acciones destructivas o irreversibles. «Cancelar reserva» requiere diálogo con fecha, hora y nombre; «Completar» puede ser directa con feedback y opción de cerrar.
 

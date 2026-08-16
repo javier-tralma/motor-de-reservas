@@ -45,18 +45,17 @@ export const AdminLayout: React.FC = () => {
     { label: 'Reservas', path: '/admin/reservas', active: true },
     { label: 'Servicios', path: '/admin/servicios', active: true },
     { label: 'Profesionales', path: '/admin/profesionales', active: true },
-    { label: 'Horarios', path: '#', active: false },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#f7f5f0] text-[#1f2a27] flex flex-col md:flex-row">
       {/* Mobile Top Navigation */}
-      <header className="md:hidden bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
+      <header className="md:hidden bg-[#f0eee9] border-b border-[#dfe4df] px-4 py-3 flex items-center justify-between sticky top-0 z-30">
         <div>
-          <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider block">
+          <span className="text-xs font-semibold text-[#176b5b] uppercase tracking-wider block">
             {business?.name || 'Estudio Nómada'}
           </span>
-          <span className="text-sm font-bold text-white">Panel Admin</span>
+          <span className="text-sm font-bold text-[#1f2a27]">Panel Admin</span>
         </div>
         <button
           ref={menuButtonRef}
@@ -64,7 +63,7 @@ export const AdminLayout: React.FC = () => {
           onClick={() => setIsMobileOpen(!isMobileOpen)}
           aria-expanded={isMobileOpen}
           aria-label={isMobileOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
-          className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          className="p-2 rounded-xl bg-[#fffdf9] text-[#1f2a27] border border-[#dfe4df] hover:bg-[#f7f5f0] focus:outline-none focus:ring-2 focus:ring-[#176b5b]"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {isMobileOpen ? (
@@ -79,7 +78,7 @@ export const AdminLayout: React.FC = () => {
       {/* Mobile Drawer Overlay */}
       {isMobileOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40"
+          className="md:hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -88,68 +87,54 @@ export const AdminLayout: React.FC = () => {
       <aside
         ref={asideRef}
         aria-label="Panel lateral de administración"
-        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between transform transition-transform duration-200 ease-in-out ${
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-[#f0eee9] border-r border-[#dfe4df] flex flex-col justify-between transform transition-transform duration-200 ease-in-out ${
+          isMobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'
         }`}
       >
         <div>
           {/* Header */}
-          <div className="p-6 border-b border-slate-800">
-            <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider block">
+          <div className="p-6 border-b border-[#dfe4df]">
+            <span className="text-xs font-semibold text-[#176b5b] uppercase tracking-wider block">
               {business?.name || 'Estudio Nómada'}
             </span>
-            <h2 className="text-xl font-bold text-white font-serif mt-1">Administración</h2>
+            <h2 className="text-xl font-bold text-[#1f2a27] mt-1">Administración</h2>
           </div>
 
           {/* Navigation Links */}
           <nav className="p-4 space-y-1" aria-label="Navegación principal">
-            {navItems.map((item) =>
-              item.active ? (
-                <NavLink
-                  key={item.label}
-                  to={item.path}
-                  onClick={() => setIsMobileOpen(false)}
-                  className={({ isActive }) =>
-                    `flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                        : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                    }`
-                  }
-                  end={item.end}
-                >
-                  {item.label}
-                </NavLink>
-              ) : (
-                <span
-                  key={item.label}
-                  aria-disabled="true"
-                  title="Próximamente disponible"
-                  className="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium text-slate-600 cursor-not-allowed opacity-60 select-none"
-                >
-                  <span>{item.label}</span>
-                  <span className="text-[10px] bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full border border-slate-700/50">
-                    Pronto
-                  </span>
-                </span>
-              )
-            )}
+            {navItems.map((item) => (
+              <NavLink
+                key={item.label}
+                to={item.path}
+                onClick={() => setIsMobileOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-[#fffdf9] text-[#176b5b] font-semibold border border-[#dfe4df] shadow-xs'
+                      : 'text-[#66736e] hover:text-[#1f2a27] hover:bg-[#fffdf9]/70'
+                  }`
+                }
+                end={item.end}
+              >
+                {item.label}
+              </NavLink>
+            ))}
           </nav>
         </div>
 
         {/* User Footer & Logout */}
-        <div className="p-4 border-t border-slate-800 bg-slate-900/50">
+        <div className="p-4 border-t border-[#dfe4df] bg-[#f0eee9]">
           {logoutError && (
-            <p className="text-xs text-rose-400 mb-2 px-1" role="alert">
+            <p className="text-xs text-rose-600 mb-2 px-1" role="alert">
               {logoutError}
             </p>
           )}
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white truncate">
+              <p className="text-sm font-semibold text-[#1f2a27] truncate">
                 {user?.display_name || 'Administrador'}
               </p>
-              <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+              <p className="text-xs text-[#66736e] truncate">{user?.email}</p>
             </div>
             <button
               type="button"
@@ -157,7 +142,7 @@ export const AdminLayout: React.FC = () => {
               disabled={isLoggingOut}
               aria-label="Cerrar sesión"
               aria-busy={isLoggingOut ? 'true' : undefined}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-slate-700/50 hover:border-rose-500/30 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
+              className="p-2 rounded-xl bg-[#fffdf9] hover:bg-rose-50 text-[#66736e] hover:text-rose-700 border border-[#dfe4df] hover:border-rose-200 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
             >
               {isLoggingOut ? (
                 <span className="w-5 h-5 block border-2 border-slate-400 border-t-transparent rounded-full animate-spin" aria-hidden="true" />
@@ -172,7 +157,7 @@ export const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main ref={mainRef} className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+      <main ref={mainRef} className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 bg-[#f7f5f0]">
         <Outlet />
       </main>
     </div>

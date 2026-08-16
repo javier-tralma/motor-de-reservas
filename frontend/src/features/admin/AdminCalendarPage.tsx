@@ -99,32 +99,34 @@ export const AdminCalendarPage: React.FC = () => {
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white font-serif tracking-tight">Calendario</h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1f2a27] tracking-tight">Calendario</h1>
+          <p className="text-[#66736e] text-sm mt-1">
             Visualiza citas y bloqueos por profesional en vista semanal, diaria o lista.
           </p>
         </div>
 
-        <div>
-          <label htmlFor="filter-calendar-provider" className="block text-xs font-medium text-slate-400 mb-1.5">
-            Profesional
-          </label>
-          <select
-            id="filter-calendar-provider"
-            className="w-full sm:w-64 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            value={selectedProviderId}
-            onChange={(e) => setSelectedProviderId(e.target.value)}
-          >
-            <option value="">Todos los profesionales</option>
-            {providers.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name} {!p.is_active ? '(Inactivo)' : ''}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <label htmlFor="filter-calendar-provider" className="block text-xs font-medium text-[#66736e] mb-1.5">
+              Profesional
+            </label>
+            <select
+              id="filter-calendar-provider"
+              className="w-full sm:w-64 px-3 py-2 bg-[#fffdf9] border border-[#dfe4df] rounded-xl text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b]"
+              value={selectedProviderId}
+              onChange={(e) => setSelectedProviderId(e.target.value)}
+            >
+              <option value="">Todos los profesionales</option>
+              {providers.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} {!p.is_active ? '(Inactivo)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
           <Link
             to="/admin/reservas/nueva"
-            className="mt-4 sm:mt-0 sm:ml-4 inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+            className="inline-flex justify-center items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-[#176b5b] hover:bg-[#125548] transition-colors focus:outline-none focus:ring-2 focus:ring-[#176b5b] min-h-[38px]"
           >
             Nueva Reserva
           </Link>
@@ -132,7 +134,7 @@ export const AdminCalendarPage: React.FC = () => {
       </div>
 
       {/* Main Calendar Card */}
-      <div className="p-4 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col relative min-h-[700px]">
+      <div className="p-4 sm:p-6 rounded-2xl bg-[#fffdf9] border border-[#dfe4df] flex flex-col relative min-h-[700px] shadow-xs">
         {/* Loading Overlay */}
         {(isLoading || isFetching) && (
           <div
@@ -140,10 +142,10 @@ export const AdminCalendarPage: React.FC = () => {
             aria-live="polite"
             aria-busy="true"
             data-testid="calendar-loading-overlay"
-            className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs flex flex-col items-center justify-center z-20 rounded-2xl"
+            className="absolute inset-0 bg-white/80 backdrop-blur-xs flex flex-col items-center justify-center z-20 rounded-2xl"
           >
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-500 mb-2"></div>
-            <span className="text-slate-200 text-sm font-medium">Actualizando calendario...</span>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#176b5b] mb-2"></div>
+            <span className="text-[#1f2a27] text-sm font-medium">Actualizando calendario...</span>
           </div>
         )}
 
@@ -151,15 +153,15 @@ export const AdminCalendarPage: React.FC = () => {
         {isError && error?.status !== 401 && (
           <div
             role="alert"
-            className="p-6 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 mb-4"
+            className="p-6 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 mb-4"
           >
-            <h3 className="text-base font-bold text-rose-200 mb-2">Error al cargar el calendario</h3>
-            <p className="text-sm text-rose-300 mb-4">{error?.message || 'No fue posible conectar con el servidor.'}</p>
+            <h3 className="text-base font-bold text-rose-950 mb-2">Error al cargar el calendario</h3>
+            <p className="text-sm text-rose-800 mb-4">{error?.message || 'No fue posible conectar con el servidor.'}</p>
             <button
               type="button"
               onClick={() => refetch()}
               disabled={isFetching}
-              className="px-4 py-2 bg-rose-500 text-white rounded-xl text-sm font-medium hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer"
+              className="px-4 py-2 bg-[#b33a3a] text-white rounded-xl text-sm font-medium hover:bg-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer"
             >
               {isFetching ? 'Reintentando...' : 'Reintentar'}
             </button>
@@ -170,10 +172,10 @@ export const AdminCalendarPage: React.FC = () => {
         {isEmpty && (
           <div
             role="status"
-            className="p-4 mb-4 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center gap-3 text-slate-300 text-sm"
+            className="p-4 mb-4 rounded-xl bg-[#f0eee9] border border-[#dfe4df] flex items-center gap-3 text-[#1f2a27] text-sm"
           >
             <svg
-              className="w-5 h-5 text-slate-500 shrink-0"
+              className="w-5 h-5 text-[#66736e] shrink-0"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -201,7 +203,7 @@ export const AdminCalendarPage: React.FC = () => {
               onViewChange={handleViewChange}
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-slate-500 text-sm" aria-busy="true">
+            <div className="flex items-center justify-center h-full text-[#66736e] text-sm" aria-busy="true">
               Cargando configuración del negocio...
             </div>
           )}

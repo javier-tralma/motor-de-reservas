@@ -189,15 +189,15 @@ export const ProvidersPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white font-serif">Profesionales</h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1f2a27] tracking-tight">Profesionales</h1>
+          <p className="text-sm text-[#66736e] mt-1">
             Gestiona el equipo de trabajo y las asignaciones de servicios por profesional.
           </p>
         </div>
         <button
           type="button"
           onClick={openCreateModal}
-          className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold rounded-xl text-sm transition-colors shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2"
+          className="px-4 py-2.5 bg-[#176b5b] hover:bg-[#125548] text-white font-semibold rounded-xl text-sm transition-colors shadow-xs flex items-center justify-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -207,14 +207,14 @@ export const ProvidersPage: React.FC = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+      <div className="flex items-center gap-2 border-b border-[#dfe4df] pb-2">
         <button
           type="button"
           onClick={() => setFilterStatus('all')}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
             filterStatus === 'all'
-              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              ? 'bg-[#fffdf9] text-[#176b5b] font-semibold border border-[#dfe4df] shadow-xs'
+              : 'text-[#66736e] hover:text-[#1f2a27] hover:bg-[#f0eee9]'
           }`}
         >
           Todos ({providers.length})
@@ -224,8 +224,8 @@ export const ProvidersPage: React.FC = () => {
           onClick={() => setFilterStatus('active')}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
             filterStatus === 'active'
-              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              ? 'bg-[#fffdf9] text-[#176b5b] font-semibold border border-[#dfe4df] shadow-xs'
+              : 'text-[#66736e] hover:text-[#1f2a27] hover:bg-[#f0eee9]'
           }`}
         >
           Activos ({providers.filter((p) => p.is_active).length})
@@ -235,8 +235,8 @@ export const ProvidersPage: React.FC = () => {
           onClick={() => setFilterStatus('inactive')}
           className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
             filterStatus === 'inactive'
-              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              ? 'bg-[#fffdf9] text-[#176b5b] font-semibold border border-[#dfe4df] shadow-xs'
+              : 'text-[#66736e] hover:text-[#1f2a27] hover:bg-[#f0eee9]'
           }`}
         >
           Inactivos ({providers.filter((p) => !p.is_active).length})
@@ -247,59 +247,59 @@ export const ProvidersPage: React.FC = () => {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="p-5 bg-slate-900 border border-slate-800 rounded-2xl animate-pulse space-y-3">
-              <div className="h-5 bg-slate-800 rounded w-3/4" />
-              <div className="h-4 bg-slate-800 rounded w-1/2" />
+            <div key={n} className="p-5 bg-[#fffdf9] border border-[#dfe4df] rounded-2xl animate-pulse space-y-3">
+              <div className="h-5 bg-[#e4e1da] rounded w-3/4" />
+              <div className="h-4 bg-[#e4e1da] rounded w-1/2" />
             </div>
           ))}
         </div>
       ) : isError ? (
-        <div className="p-6 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-center space-y-3">
-          <p className="text-sm text-rose-300">Ocurrió un error al cargar la lista de profesionales.</p>
+        <div className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-center space-y-3">
+          <p className="text-sm text-rose-900">Ocurrió un error al cargar la lista de profesionales.</p>
           <button
             type="button"
             onClick={() => refetch()}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-medium"
+            className="px-4 py-2 bg-[#176b5b] hover:bg-[#125548] text-white rounded-xl text-xs font-semibold"
           >
             Reintentar
           </button>
         </div>
       ) : filteredProviders.length === 0 ? (
-        <div className="p-12 bg-slate-900/50 border border-slate-800 border-dashed rounded-2xl text-center space-y-3">
-          <p className="text-slate-400 text-sm">No se encontraron profesionales en esta categoría.</p>
+        <div className="p-12 bg-[#fffdf9] border border-[#dfe4df] border-dashed rounded-2xl text-center space-y-3">
+          <p className="text-[#66736e] text-sm">No se encontraron profesionales en esta categoría.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredProviders.map((provider) => (
             <div
               key={provider.id}
-              className={`p-5 bg-slate-900 border rounded-2xl flex flex-col justify-between transition-all ${
+              className={`p-5 bg-[#fffdf9] border rounded-2xl flex flex-col justify-between transition-all shadow-xs ${
                 provider.is_active
-                  ? 'border-slate-800 hover:border-slate-700'
-                  : 'border-slate-800/60 opacity-60 bg-slate-950/40'
+                  ? 'border-[#dfe4df] hover:border-[#ccd3cc]'
+                  : 'border-[#dfe4df]/60 opacity-60 bg-[#f0eee9]/40'
               }`}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-base">
+                  <div className="w-10 h-10 rounded-full bg-[#176b5b]/10 border border-[#176b5b]/20 flex items-center justify-center text-[#176b5b] font-bold text-base">
                     {provider.name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <h3 className="text-base font-semibold text-white">{provider.name}</h3>
+                    <h3 className="text-base font-semibold text-[#1f2a27]">{provider.name}</h3>
                   </div>
                 </div>
                 <span
                   className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                     provider.is_active
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                      : 'bg-slate-800 text-slate-400 border border-slate-700'
+                      ? 'bg-[#176b5b]/10 text-[#176b5b] border border-[#176b5b]/20'
+                      : 'bg-stone-100 text-stone-600 border border-stone-200'
                   }`}
                 >
                   {provider.is_active ? 'Activo' : 'Inactivo'}
                 </span>
               </div>
 
-              <div className="mt-5 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+              <div className="mt-5 pt-4 border-t border-[#dfe4df] flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
@@ -307,14 +307,14 @@ export const ProvidersPage: React.FC = () => {
                       setAssignTriggerEl(e.currentTarget);
                       setAssignModalProvider({ id: provider.id, name: provider.name });
                     }}
-                    className="px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-medium transition-colors"
+                    className="px-2.5 py-1.5 bg-[#f0eee9] hover:bg-[#e4e1da] text-[#176b5b] border border-[#dfe4df] rounded-lg text-xs font-semibold transition-colors"
                   >
                     Servicios
                   </button>
 
                   <Link
                     to={`/admin/profesionales/${provider.id}/disponibilidad`}
-                    className="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded-lg text-xs font-medium transition-colors inline-flex items-center"
+                    className="px-2.5 py-1.5 bg-[#f0eee9] hover:bg-[#e4e1da] text-[#1f2a27] border border-[#dfe4df] rounded-lg text-xs font-medium transition-colors inline-flex items-center"
                   >
                     Disponibilidad
                   </Link>
@@ -323,7 +323,7 @@ export const ProvidersPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={(e) => openEditModal(provider, e)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-lg text-xs font-medium transition-colors"
+                  className="px-3 py-1.5 bg-[#f0eee9] hover:bg-[#e4e1da] text-[#1f2a27] rounded-lg text-xs font-medium transition-colors"
                 >
                   Editar
                 </button>
@@ -336,21 +336,21 @@ export const ProvidersPage: React.FC = () => {
       {/* Form Modal for Create / Edit Provider */}
       {isFormModalOpen && (
         <div
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="provider-modal-title"
         >
-          <div ref={modalRef} className="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-5 relative">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h2 id="provider-modal-title" className="text-lg font-bold text-white">
+          <div ref={modalRef} className="bg-[#fffdf9] border border-[#dfe4df] w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-5 relative text-left">
+            <div className="flex items-center justify-between border-b border-[#dfe4df] pb-3">
+              <h2 id="provider-modal-title" className="text-lg font-bold text-[#1f2a27]">
                 {editingProviderId ? 'Editar Profesional' : 'Nuevo Profesional'}
               </h2>
               <button
                 type="button"
                 onClick={closeFormModal}
                 disabled={isSubmitting}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors disabled:opacity-50"
+                className="p-1 rounded-lg text-[#66736e] hover:text-[#1f2a27] hover:bg-[#f0eee9] transition-colors disabled:opacity-50"
                 aria-label="Cerrar modal"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -360,14 +360,14 @@ export const ProvidersPage: React.FC = () => {
             </div>
 
             {serverError && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300" role="alert">
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-900" role="alert">
                 {serverError}
               </div>
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
-                <label htmlFor="provider-name" className="block text-xs font-medium text-slate-300 mb-1">Nombre *</label>
+                <label htmlFor="provider-name" className="block text-xs font-medium text-[#66736e] mb-1">Nombre *</label>
                 <input
                   id="provider-name"
                   type="text"
@@ -379,17 +379,17 @@ export const ProvidersPage: React.FC = () => {
                   disabled={isSubmitting}
                   aria-invalid={!!errors.name}
                   aria-describedby={errors.name ? 'provider-name-error' : undefined}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#fffdf9] border border-[#dfe4df] rounded-xl text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50"
                   placeholder="Ej: Camila Rojas"
                 />
                 {errors.name && (
-                  <span id="provider-name-error" className="block text-xs text-rose-400 mt-1">{errors.name.message}</span>
+                  <span id="provider-name-error" className="block text-xs text-rose-600 mt-1">{errors.name.message}</span>
                 )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="provider-email" className="block text-xs font-medium text-slate-300 mb-1">Email</label>
+                  <label htmlFor="provider-email" className="block text-xs font-medium text-[#66736e] mb-1">Email</label>
                   <input
                     id="provider-email"
                     type="text"
@@ -397,16 +397,16 @@ export const ProvidersPage: React.FC = () => {
                     disabled={isSubmitting}
                     aria-invalid={!!errors.email}
                     aria-describedby={errors.email ? 'provider-email-error' : undefined}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                    className="w-full px-3 py-2 bg-[#fffdf9] border border-[#dfe4df] rounded-xl text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50"
                     placeholder="camila@ejemplo.cl"
                   />
                   {errors.email && (
-                    <span id="provider-email-error" className="block text-xs text-rose-400 mt-1">{errors.email.message}</span>
+                    <span id="provider-email-error" className="block text-xs text-rose-600 mt-1">{errors.email.message}</span>
                   )}
                 </div>
 
                 <div>
-                  <label htmlFor="provider-phone" className="block text-xs font-medium text-slate-300 mb-1">Teléfono</label>
+                  <label htmlFor="provider-phone" className="block text-xs font-medium text-[#66736e] mb-1">Teléfono</label>
                   <input
                     id="provider-phone"
                     type="text"
@@ -414,17 +414,17 @@ export const ProvidersPage: React.FC = () => {
                     disabled={isSubmitting}
                     aria-invalid={!!errors.phone}
                     aria-describedby={errors.phone ? 'provider-phone-error' : undefined}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                    className="w-full px-3 py-2 bg-[#fffdf9] border border-[#dfe4df] rounded-xl text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50"
                     placeholder="+56912345678"
                   />
                   {errors.phone && (
-                    <span id="provider-phone-error" className="block text-xs text-rose-400 mt-1">{errors.phone.message}</span>
+                    <span id="provider-phone-error" className="block text-xs text-rose-600 mt-1">{errors.phone.message}</span>
                   )}
                 </div>
               </div>
 
               <div>
-                <label htmlFor="provider-bio" className="block text-xs font-medium text-slate-300 mb-1">Biografía</label>
+                <label htmlFor="provider-bio" className="block text-xs font-medium text-[#66736e] mb-1">Biografía</label>
                 <textarea
                   id="provider-bio"
                   {...register('bio')}
@@ -432,41 +432,41 @@ export const ProvidersPage: React.FC = () => {
                   disabled={isSubmitting}
                   aria-invalid={!!errors.bio}
                   aria-describedby={errors.bio ? 'provider-bio-error' : undefined}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-[#fffdf9] border border-[#dfe4df] rounded-xl text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50"
                   placeholder="Especialidad o experiencia..."
                 />
                 {errors.bio && (
-                  <span id="provider-bio-error" className="block text-xs text-rose-400 mt-1">{errors.bio.message}</span>
+                  <span id="provider-bio-error" className="block text-xs text-rose-600 mt-1">{errors.bio.message}</span>
                 )}
               </div>
 
               <div className="grid grid-cols-2 gap-4 pt-1">
                 <div>
-                  <label htmlFor="provider-sort-order" className="block text-xs font-medium text-slate-300 mb-1">Orden</label>
+                  <label htmlFor="provider-sort-order" className="block text-xs font-medium text-[#66736e] mb-1">Orden</label>
                   <input
                     id="provider-sort-order"
                     type="number"
                     {...register('sort_order')}
                     disabled={isSubmitting}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                    className="w-full px-3 py-2 bg-[#fffdf9] border border-[#dfe4df] rounded-xl text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50"
                   />
                 </div>
 
                 <div className="flex items-center pt-5">
-                  <label htmlFor="provider-is-active" className="flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer">
+                  <label htmlFor="provider-is-active" className="flex items-center gap-2 text-xs font-medium text-[#1f2a27] cursor-pointer">
                     <input
                       id="provider-is-active"
                       type="checkbox"
                       {...register('is_active')}
                       disabled={isSubmitting}
-                      className="w-4 h-4 rounded bg-slate-950 border-slate-800 text-emerald-500 focus:ring-emerald-500"
+                      className="w-4 h-4 rounded border-[#dfe4df] text-[#176b5b] focus:ring-[#176b5b]"
                     />
                     Profesional Activo
                   </label>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#dfe4df]">
                 <Button
                   type="button"
                   variant="outline"
@@ -480,7 +480,7 @@ export const ProvidersPage: React.FC = () => {
                   type="submit"
                   isLoading={isSubmitting}
                   disabled={isSubmitting}
-                  className="text-xs px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold"
+                  className="text-xs px-4 py-2"
                 >
                   {editingProviderId ? 'Guardar Cambios' : 'Crear Profesional'}
                 </Button>

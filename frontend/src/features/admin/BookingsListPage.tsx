@@ -93,15 +93,15 @@ export const BookingsListPage: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return { label: 'Confirmada', className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' };
+        return { label: 'Confirmada', className: 'bg-[#176b5b]/10 text-[#176b5b] border-[#176b5b]/30' };
       case 'completed':
-        return { label: 'Completada', className: 'bg-blue-500/10 text-blue-400 border-blue-500/30' };
+        return { label: 'Completada', className: 'bg-blue-50 text-blue-700 border-blue-200' };
       case 'cancelled':
-        return { label: 'Cancelada', className: 'bg-rose-500/10 text-rose-400 border-rose-500/30' };
+        return { label: 'Cancelada', className: 'bg-stone-100 text-stone-600 border-stone-200' };
       case 'no_show':
-        return { label: 'Inasistencia', className: 'bg-amber-500/10 text-amber-400 border-amber-500/30' };
+        return { label: 'Inasistencia', className: 'bg-amber-50 text-amber-800 border-amber-200' };
       default:
-        return { label: status, className: 'bg-slate-800 text-slate-400 border-slate-700' };
+        return { label: status, className: 'bg-stone-100 text-stone-600 border-stone-200' };
     }
   };
 
@@ -110,17 +110,17 @@ export const BookingsListPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white font-serif tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1f2a27] tracking-tight">
             Gestión de Reservas
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-[#66736e] text-sm mt-1">
             Consulta, filtra y gestiona el estado operativo de las citas.
           </p>
         </div>
         <div className="flex-shrink-0">
           <Link
             to="/admin/reservas/nueva"
-            className="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50 min-h-[44px]"
+            className="inline-flex items-center justify-center px-4 py-2 bg-[#176b5b] hover:bg-[#125548] text-white font-semibold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-[#176b5b] min-h-[44px]"
           >
             Nueva Reserva
           </Link>
@@ -128,10 +128,10 @@ export const BookingsListPage: React.FC = () => {
       </div>
 
       {/* Filter Bar */}
-      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="p-4 rounded-2xl bg-[#fffdf9] border border-[#dfe4df] grid grid-cols-1 sm:grid-cols-3 gap-4 shadow-xs">
         {/* Date Filter */}
         <div>
-          <label htmlFor="filter-date" className="block text-xs font-medium text-slate-400 mb-1.5">
+          <label htmlFor="filter-date" className="block text-xs font-medium text-[#66736e] mb-1.5">
             Fecha
           </label>
           <input
@@ -139,20 +139,20 @@ export const BookingsListPage: React.FC = () => {
             type="date"
             value={dateParam}
             onChange={(e) => handleFilterChange('date', e.target.value)}
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-3 py-2 bg-[#fffdf9] border border-[#dfe4df] rounded-xl text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b]"
           />
         </div>
 
         {/* Status Filter */}
         <div>
-          <label htmlFor="filter-status" className="block text-xs font-medium text-slate-400 mb-1.5">
+          <label htmlFor="filter-status" className="block text-xs font-medium text-[#66736e] mb-1.5">
             Estado
           </label>
           <select
             id="filter-status"
             value={statusParam}
             onChange={(e) => handleFilterChange('status', e.target.value)}
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-3 py-2 bg-[#fffdf9] border border-[#dfe4df] rounded-xl text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b]"
           >
             <option value="">Todos los estados</option>
             <option value="confirmed">Confirmadas</option>
@@ -164,14 +164,14 @@ export const BookingsListPage: React.FC = () => {
 
         {/* Provider Filter */}
         <div>
-          <label htmlFor="filter-provider" className="block text-xs font-medium text-slate-400 mb-1.5">
+          <label htmlFor="filter-provider" className="block text-xs font-medium text-[#66736e] mb-1.5">
             Profesional
           </label>
           <select
             id="filter-provider"
             value={providerParam}
             onChange={(e) => handleFilterChange('provider_id', e.target.value)}
-            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-3 py-2 bg-[#fffdf9] border border-[#dfe4df] rounded-xl text-sm text-[#1f2a27] focus:outline-none focus:ring-2 focus:ring-[#176b5b]"
           >
             <option value="">Todos los profesionales</option>
             {providers?.map((p) => (
@@ -187,38 +187,38 @@ export const BookingsListPage: React.FC = () => {
       {isLoading ? (
         <div className="space-y-3" aria-busy="true" aria-live="polite">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-20 bg-slate-900 border border-slate-800 rounded-2xl animate-pulse" />
+            <div key={i} className="h-20 bg-[#fffdf9] border border-[#dfe4df] rounded-2xl animate-pulse" />
           ))}
         </div>
       ) : isError ? (
-        <div className="p-6 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300">
-          <h3 className="text-base font-bold text-rose-200 mb-2">Error al cargar las reservas</h3>
-          <p className="text-sm text-rose-300 mb-4">{error?.message || 'No fue posible conectar con el servidor.'}</p>
+        <div className="p-6 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900">
+          <h3 className="text-base font-bold text-rose-950 mb-2">Error al cargar las reservas</h3>
+          <p className="text-sm text-rose-800 mb-4">{error?.message || 'No fue posible conectar con el servidor.'}</p>
           <button
             type="button"
             onClick={() => refetch()}
             disabled={isFetching}
-            className="px-4 py-2 bg-rose-500 text-white rounded-xl text-sm font-medium hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className="px-4 py-2 bg-[#b33a3a] text-white rounded-xl text-sm font-medium hover:bg-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-500"
           >
             {isFetching ? 'Reintentando...' : 'Reintentar'}
           </button>
         </div>
       ) : bookings?.length === 0 ? (
-        <div className="p-12 text-center rounded-2xl bg-slate-900/50 border border-slate-800">
-          <svg className="w-12 h-12 mx-auto text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="p-12 text-center rounded-2xl bg-[#fffdf9] border border-[#dfe4df]">
+          <svg className="w-12 h-12 mx-auto text-[#66736e] mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          <p className="text-slate-300 font-medium text-base">No hay reservas para los filtros seleccionados</p>
-          <p className="text-slate-500 text-xs mt-1">
+          <p className="text-[#1f2a27] font-medium text-base">No hay reservas para los filtros seleccionados</p>
+          <p className="text-[#66736e] text-xs mt-1">
             Intenta seleccionar otra fecha, profesional o limpiar los filtros.
           </p>
         </div>
       ) : (
         <>
-          {/* Desktop Table View (hidden on mobile, visible on md and up) */}
-          <div className="hidden md:block overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto rounded-2xl border border-[#dfe4df] bg-[#fffdf9] shadow-xs">
             <table className="w-full text-left border-collapse text-sm">
-              <thead className="border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400 font-semibold bg-slate-950/40">
+              <thead className="border-b border-[#dfe4df] text-xs uppercase tracking-wider text-[#66736e] font-semibold bg-[#f0eee9]">
                 <tr>
                   <th scope="col" className="py-3.5 px-4">Fecha / Horario</th>
                   <th scope="col" className="py-3.5 px-4">Cliente</th>
@@ -228,26 +228,26 @@ export const BookingsListPage: React.FC = () => {
                   <th scope="col" className="py-3.5 px-4 text-right">Acción</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 text-slate-200">
+              <tbody className="divide-y divide-[#dfe4df] text-[#1f2a27]">
                 {bookings?.map((item) => {
                   const badge = getStatusBadge(item.status);
                   return (
-                    <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
+                    <tr key={item.id} className="hover:bg-[#f7f5f0] transition-colors">
                       <td className="py-3.5 px-4 font-medium whitespace-nowrap">
-                        <div className="font-mono text-xs text-white">
+                        <div className="font-mono text-xs text-[#1f2a27]">
                           {formatTimeRange(item.starts_at, item.ends_at)}
                         </div>
-                        <div className="text-xs text-slate-400 mt-0.5">
+                        <div className="text-xs text-[#66736e] mt-0.5">
                           {formatBookingDate(item.starts_at)}
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 font-semibold text-white">
+                      <td className="py-3.5 px-4 font-semibold text-[#1f2a27]">
                         {item.customer_name}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-300">
+                      <td className="py-3.5 px-4 text-[#66736e]">
                         {item.service_name_snapshot}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-300">
+                      <td className="py-3.5 px-4 text-[#66736e]">
                         {item.provider_name_snapshot}
                       </td>
                       <td className="py-3.5 px-4">
@@ -258,7 +258,7 @@ export const BookingsListPage: React.FC = () => {
                       <td className="py-3.5 px-4 text-right">
                         <Link
                           to={`/admin/reservas/${item.id}`}
-                          className="inline-flex items-center text-xs font-medium text-emerald-400 hover:text-emerald-300 underline focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded px-2 py-1"
+                          className="inline-flex items-center text-xs font-semibold text-[#176b5b] hover:text-[#125548] underline focus:outline-none focus:ring-2 focus:ring-[#176b5b] rounded px-2 py-1"
                         >
                           Ver detalle
                         </Link>
@@ -270,7 +270,7 @@ export const BookingsListPage: React.FC = () => {
             </table>
           </div>
 
-          {/* Mobile Card List View (visible on mobile, hidden on md and up) */}
+          {/* Mobile Card List View */}
           <div className="block md:hidden space-y-3">
             {bookings?.map((item) => {
               const badge = getStatusBadge(item.status);
@@ -278,10 +278,10 @@ export const BookingsListPage: React.FC = () => {
                 <Link
                   key={item.id}
                   to={`/admin/reservas/${item.id}`}
-                  className="p-4 rounded-2xl bg-slate-900 border border-slate-800/80 hover:border-slate-700 transition-colors flex flex-col gap-3 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-emerald-500 block text-left"
+                  className="p-4 rounded-2xl bg-[#fffdf9] border border-[#dfe4df] hover:border-[#ccd3cc] transition-colors flex flex-col gap-3 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-[#176b5b] block text-left shadow-xs"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <div className="px-2.5 py-1 rounded-xl bg-slate-800 border border-slate-700/50 text-slate-200 font-mono text-xs font-semibold shrink-0">
+                    <div className="px-2.5 py-1 rounded-xl bg-[#f0eee9] border border-[#dfe4df] text-[#1f2a27] font-mono text-xs font-semibold shrink-0">
                       {formatTimeRange(item.starts_at, item.ends_at)}
                     </div>
                     <span className={`px-2.5 py-0.5 rounded-full border text-xs font-semibold ${badge.className}`}>
@@ -290,11 +290,11 @@ export const BookingsListPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <p className="text-base font-bold text-white group-hover:text-emerald-400 transition-colors">
+                    <p className="text-base font-bold text-[#1f2a27] group-hover:text-[#176b5b] transition-colors">
                       {item.customer_name}
                     </p>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      {item.service_name_snapshot} — <span className="text-slate-300">{item.provider_name_snapshot}</span>
+                    <p className="text-xs text-[#66736e] mt-0.5">
+                      {item.service_name_snapshot} — <span className="text-[#1f2a27]">{item.provider_name_snapshot}</span>
                     </p>
                   </div>
                 </Link>

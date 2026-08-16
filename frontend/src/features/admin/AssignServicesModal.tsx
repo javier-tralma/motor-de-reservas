@@ -125,27 +125,27 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="assign-services-modal-title"
       ref={modalRef}
     >
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-5 relative">
+      <div className="bg-[#fffdf9] border border-[#dfe4df] w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-5 relative text-left">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="flex items-center justify-between border-b border-[#dfe4df] pb-3">
           <div>
-            <h2 id="assign-services-modal-title" className="text-lg font-bold text-white">
+            <h2 id="assign-services-modal-title" className="text-lg font-bold text-[#1f2a27]">
               Asignar Servicios
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">Profesional: {providerName}</p>
+            <p className="text-xs text-[#66736e] mt-0.5">Profesional: {providerName}</p>
           </div>
           <button
             type="button"
             ref={closeButtonRef}
             onClick={handleClose}
             disabled={isSubmitting}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors disabled:opacity-50"
+            className="p-1 rounded-lg text-[#66736e] hover:text-[#1f2a27] hover:bg-[#f0eee9] transition-colors disabled:opacity-50"
             aria-label="Cerrar modal"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -155,7 +155,7 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
         </div>
 
         {serverError && (
-          <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300" role="alert">
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-900" role="alert">
             {serverError}
           </div>
         )}
@@ -164,25 +164,25 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
         {isLoading ? (
           <div className="space-y-3 py-4">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="h-10 bg-slate-800 rounded-xl animate-pulse" />
+              <div key={n} className="h-10 bg-[#e4e1da] rounded-xl animate-pulse" />
             ))}
           </div>
         ) : isError ? (
-          <div className="p-6 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-center space-y-3">
-            <p className="text-sm text-rose-300">Error al cargar la información de asignaciones.</p>
+          <div className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-center space-y-3">
+            <p className="text-sm text-rose-900">Error al cargar la información de asignaciones.</p>
             <button
               type="button"
               onClick={() => {
                 refetchAssigned();
                 refetchAll();
               }}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-medium"
+              className="px-4 py-2 bg-[#176b5b] hover:bg-[#125548] text-white rounded-xl text-xs font-semibold"
             >
               Reintentar
             </button>
           </div>
         ) : allServices.length === 0 ? (
-          <div className="p-6 text-center text-slate-400 text-sm">
+          <div className="p-6 text-center text-[#66736e] text-sm">
             No existen servicios creados en el sistema.
           </div>
         ) : (
@@ -194,8 +194,8 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
                   key={service.id}
                   className={`flex items-center justify-between p-3 rounded-xl border transition-colors cursor-pointer ${
                     isChecked
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-white'
-                      : 'bg-slate-950/60 border-slate-800/80 text-slate-300 hover:border-slate-700'
+                      ? 'bg-[#176b5b]/10 border-[#176b5b]/30 text-[#1f2a27]'
+                      : 'bg-[#fffdf9] border-[#dfe4df] text-[#1f2a27] hover:border-[#ccd3cc]'
                   } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <div className="flex items-center gap-3">
@@ -204,18 +204,18 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
                       checked={isChecked}
                       onChange={() => toggleService(service.id)}
                       disabled={isSubmitting}
-                      className="w-4 h-4 rounded bg-slate-950 border-slate-800 text-emerald-500 focus:ring-emerald-500"
+                      className="w-4 h-4 rounded border-[#dfe4df] text-[#176b5b] focus:ring-[#176b5b]"
                     />
                     <span className="text-sm font-medium">{service.name}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     {!service.is_active && (
-                      <span className="px-2 py-0.5 bg-slate-800 text-slate-400 border border-slate-700 rounded-full text-[10px] font-semibold uppercase">
+                      <span className="px-2 py-0.5 bg-stone-100 text-stone-600 border border-stone-200 rounded-full text-[10px] font-semibold uppercase">
                         Inactivo
                       </span>
                     )}
-                    <span className="text-xs text-slate-400">{service.duration_minutes} min</span>
+                    <span className="text-xs text-[#66736e]">{service.duration_minutes} min</span>
                   </div>
                 </label>
               );
@@ -224,7 +224,7 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#dfe4df]">
           <Button
             type="button"
             variant="outline"
@@ -239,7 +239,7 @@ export const AssignServicesModal: React.FC<AssignServicesModalProps> = ({
             onClick={handleSave}
             isLoading={isSubmitting}
             disabled={isSubmitting || isLoading || isError}
-            className="text-xs px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold"
+            className="text-xs px-4 py-2"
           >
             Guardar Asignaciones
           </Button>

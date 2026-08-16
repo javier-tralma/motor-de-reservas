@@ -42,8 +42,8 @@ export const LoginPage: React.FC = () => {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-        <div className="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#f7f5f0] flex items-center justify-center p-4">
+        <div className="w-8 h-8 border-4 border-[#176b5b]/20 border-t-[#176b5b] rounded-full animate-spin" />
       </div>
     );
   }
@@ -74,43 +74,41 @@ export const LoginPage: React.FC = () => {
         setIsNetworkError(true);
         setServerError('No se pudo conectar con el servidor. Verifica tu conexión a internet.');
       }
-
     }
   };
-
 
   const onFormSubmit = handleSubmit(onSubmit);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#f7f5f0] text-[#1f2a27] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <span className="inline-block p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 mb-4 text-emerald-400 font-bold text-xl tracking-tight">
+          <span className="inline-block p-3 rounded-2xl bg-[#176b5b]/10 border border-[#176b5b]/20 mb-4 text-[#176b5b] font-bold text-xl tracking-tight">
             Estudio Nómada
           </span>
-          <h1 className="text-3xl font-bold tracking-tight text-white font-serif">
+          <h1 className="text-3xl font-bold tracking-tight text-[#1f2a27]">
             Panel de Administración
           </h1>
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-2 text-sm text-[#66736e]">
             Ingresa tus credenciales para acceder a la agenda
           </p>
         </div>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-slate-900/90 border border-slate-800 py-8 px-6 shadow-2xl rounded-2xl sm:px-10 backdrop-blur-xl">
+        <div className="bg-[#fffdf9] border border-[#dfe4df] py-8 px-6 shadow-xl rounded-2xl sm:px-10">
           <form className="space-y-6" onSubmit={onFormSubmit} noValidate>
             {serverError && (
               <div
                 role="alert"
                 tabIndex={-1}
-                className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm flex flex-col gap-2"
+                className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-sm flex flex-col gap-2"
               >
                 <span>{serverError}</span>
                 {isNetworkError && (
                   <button
                     type="submit"
-                    className="self-start text-xs font-semibold text-rose-400 hover:text-rose-200 underline focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    className="self-start text-xs font-semibold text-rose-700 hover:text-rose-950 underline focus:outline-none focus:ring-2 focus:ring-rose-500"
                   >
                     Reintentar conexión
                   </button>
@@ -118,11 +116,10 @@ export const LoginPage: React.FC = () => {
               </div>
             )}
 
-
             <div>
               <label
                 htmlFor="admin-email"
-                className="block text-sm font-medium text-slate-300 mb-1"
+                className="block text-xs font-medium text-[#66736e] mb-1"
               >
                 Correo electrónico
               </label>
@@ -132,15 +129,15 @@ export const LoginPage: React.FC = () => {
                 autoComplete="username"
                 disabled={isSubmitting}
                 {...register('email')}
-                className={`w-full px-4 py-3 rounded-xl bg-slate-800/80 border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors ${
+                className={`w-full px-4 py-3 rounded-xl bg-[#fffdf9] border text-[#1f2a27] placeholder-[#66736e]/60 focus:outline-none focus:ring-2 focus:ring-[#176b5b] transition-colors ${
                   errors.email
                     ? 'border-rose-500 focus:ring-rose-500'
-                    : 'border-slate-700 hover:border-slate-600'
+                    : 'border-[#dfe4df] hover:border-[#ccd3cc]'
                 }`}
                 placeholder="admin@ejemplo.cl"
               />
               {errors.email && (
-                <p className="mt-1 text-xs text-rose-400" id="email-error">
+                <p className="mt-1 text-xs text-rose-600" id="email-error">
                   {errors.email.message}
                 </p>
               )}
@@ -149,7 +146,7 @@ export const LoginPage: React.FC = () => {
             <div>
               <label
                 htmlFor="admin-password"
-                className="block text-sm font-medium text-slate-300 mb-1"
+                className="block text-xs font-medium text-[#66736e] mb-1"
               >
                 Contraseña
               </label>
@@ -159,15 +156,15 @@ export const LoginPage: React.FC = () => {
                 autoComplete="current-password"
                 disabled={isSubmitting}
                 {...register('password')}
-                className={`w-full px-4 py-3 rounded-xl bg-slate-800/80 border text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors ${
+                className={`w-full px-4 py-3 rounded-xl bg-[#fffdf9] border text-[#1f2a27] placeholder-[#66736e]/60 focus:outline-none focus:ring-2 focus:ring-[#176b5b] transition-colors ${
                   errors.password
                     ? 'border-rose-500 focus:ring-rose-500'
-                    : 'border-slate-700 hover:border-slate-600'
+                    : 'border-[#dfe4df] hover:border-[#ccd3cc]'
                 }`}
                 placeholder="••••••••"
               />
               {errors.password && (
-                <p className="mt-1 text-xs text-rose-400" id="password-error">
+                <p className="mt-1 text-xs text-rose-600" id="password-error">
                   {errors.password.message}
                 </p>
               )}
@@ -177,11 +174,11 @@ export const LoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex justify-center items-center py-3 px-4 rounded-xl shadow-lg text-sm font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="w-full flex justify-center items-center py-3 px-4 rounded-xl shadow-xs text-sm font-semibold text-white bg-[#176b5b] hover:bg-[#125548] focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" />
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     Iniciando sesión...
                   </span>
                 ) : (

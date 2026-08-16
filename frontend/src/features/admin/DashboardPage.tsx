@@ -87,15 +87,15 @@ export const DashboardPage: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return { label: 'Confirmada', className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' };
+        return { label: 'Confirmada', className: 'bg-[#176b5b]/10 text-[#176b5b] border-[#176b5b]/30' };
       case 'completed':
-        return { label: 'Completada', className: 'bg-blue-500/10 text-blue-400 border-blue-500/30' };
+        return { label: 'Completada', className: 'bg-blue-50 text-blue-700 border-blue-200' };
       case 'cancelled':
-        return { label: 'Cancelada', className: 'bg-rose-500/10 text-rose-400 border-rose-500/30' };
+        return { label: 'Cancelada', className: 'bg-stone-100 text-stone-600 border-stone-200' };
       case 'no_show':
-        return { label: 'Inasistencia', className: 'bg-amber-500/10 text-amber-400 border-amber-500/30' };
+        return { label: 'Inasistencia', className: 'bg-amber-50 text-amber-800 border-amber-200' };
       default:
-        return { label: status, className: 'bg-slate-800 text-slate-400 border-slate-700' };
+        return { label: status, className: 'bg-stone-100 text-stone-600 border-stone-200' };
     }
   };
 
@@ -104,21 +104,21 @@ export const DashboardPage: React.FC = () => {
       <div className="space-y-6" aria-busy="true" aria-live="polite">
         {/* Header Skeleton */}
         <div className="animate-pulse space-y-2">
-          <div className="h-8 w-64 bg-slate-800 rounded-lg" />
-          <div className="h-4 w-48 bg-slate-800/60 rounded-lg" />
+          <div className="h-8 w-64 bg-[#e4e1da] rounded-lg" />
+          <div className="h-4 w-48 bg-[#e4e1da]/60 rounded-lg" />
         </div>
 
         {/* Stats Skeleton */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-24 bg-slate-900 border border-slate-800 rounded-2xl animate-pulse" />
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-24 bg-[#fffdf9] border border-[#dfe4df] rounded-2xl animate-pulse" />
           ))}
         </div>
 
         {/* Agenda Skeleton */}
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 bg-slate-900 border border-slate-800 rounded-2xl animate-pulse" />
+            <div key={i} className="h-20 bg-[#fffdf9] border border-[#dfe4df] rounded-2xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -127,16 +127,16 @@ export const DashboardPage: React.FC = () => {
 
   if (isError) {
     return (
-      <div className="p-6 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 max-w-xl">
-        <h2 className="text-lg font-bold text-rose-200 mb-2">Error al cargar la agenda</h2>
-        <p className="text-sm text-rose-300 mb-4">
+      <div className="p-6 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 max-w-xl">
+        <h2 className="text-lg font-bold text-rose-950 mb-2">Error al cargar la agenda</h2>
+        <p className="text-sm text-rose-800 mb-4">
           {error?.message || 'No fue posible consultar los datos del dashboard.'}
         </p>
         <button
           type="button"
           onClick={() => refetch()}
           disabled={isFetching}
-          className="px-4 py-2 bg-rose-500 text-white rounded-xl text-sm font-medium hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
+          className="px-4 py-2 bg-[#b33a3a] text-white rounded-xl text-sm font-medium hover:bg-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
         >
           {isFetching ? 'Reintentando...' : 'Reintentar'}
         </button>
@@ -152,56 +152,56 @@ export const DashboardPage: React.FC = () => {
     <div className="space-y-8 max-w-6xl">
       {/* Welcome Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white font-serif tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#1f2a27] tracking-tight">
           {getGreeting()}, {user?.display_name || 'Administrador'}.
         </h1>
-        <p className="text-slate-400 text-sm mt-1 capitalize">
+        <p className="text-[#66736e] text-sm mt-1 capitalize">
           {formatCivilDate(dashboard?.date, dashboard?.timezone)}
         </p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
-          <span className="text-xs font-medium text-slate-400">Total hoy</span>
-          <span className="text-3xl font-bold text-white mt-2">{summary?.total ?? 0}</span>
+        <div className="p-5 rounded-2xl bg-[#fffdf9] border border-[#dfe4df] flex flex-col justify-between">
+          <span className="text-xs font-medium text-[#66736e]">Total hoy</span>
+          <span className="text-3xl font-bold text-[#1f2a27] mt-2">{summary?.total ?? 0}</span>
         </div>
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
-          <span className="text-xs font-medium text-emerald-400">Confirmadas</span>
-          <span className="text-3xl font-bold text-emerald-400 mt-2">{summary?.confirmed_remaining ?? 0}</span>
+        <div className="p-5 rounded-2xl bg-[#fffdf9] border border-[#dfe4df] flex flex-col justify-between">
+          <span className="text-xs font-medium text-[#176b5b]">Confirmadas</span>
+          <span className="text-3xl font-bold text-[#176b5b] mt-2">{summary?.confirmed_remaining ?? 0}</span>
         </div>
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
-          <span className="text-xs font-medium text-blue-400">Completadas</span>
-          <span className="text-3xl font-bold text-blue-400 mt-2">{summary?.completed ?? 0}</span>
+        <div className="p-5 rounded-2xl bg-[#fffdf9] border border-[#dfe4df] flex flex-col justify-between">
+          <span className="text-xs font-medium text-blue-700">Completadas</span>
+          <span className="text-3xl font-bold text-blue-700 mt-2">{summary?.completed ?? 0}</span>
         </div>
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
-          <span className="text-xs font-medium text-rose-400">Canceladas</span>
-          <span className="text-3xl font-bold text-rose-400 mt-2">{summary?.cancelled ?? 0}</span>
+        <div className="p-5 rounded-2xl bg-[#fffdf9] border border-[#dfe4df] flex flex-col justify-between">
+          <span className="text-xs font-medium text-stone-600">Canceladas</span>
+          <span className="text-3xl font-bold text-stone-700 mt-2">{summary?.cancelled ?? 0}</span>
         </div>
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
-          <span className="text-xs font-medium text-amber-400">Inasistencias</span>
-          <span className="text-3xl font-bold text-amber-400 mt-2">{summary?.no_show ?? 0}</span>
+        <div className="p-5 rounded-2xl bg-[#fffdf9] border border-[#dfe4df] flex flex-col justify-between">
+          <span className="text-xs font-medium text-amber-800">Inasistencias</span>
+          <span className="text-3xl font-bold text-amber-800 mt-2">{summary?.no_show ?? 0}</span>
         </div>
       </div>
 
       {/* Next Booking Highlight */}
       {nextBooking && (
-        <section aria-labelledby="next-booking-heading" className="p-6 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-500/20">
+        <section aria-labelledby="next-booking-heading" className="p-6 rounded-2xl bg-[#fffdf9] border border-[#dfe4df] shadow-xs">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <h2 id="next-booking-heading" className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-[#176b5b]" />
+            <h2 id="next-booking-heading" className="text-xs font-semibold text-[#176b5b] uppercase tracking-wider">
               Próxima reserva
             </h2>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <p className="text-xl font-bold text-white">{nextBooking.customer_name}</p>
-              <p className="text-sm text-slate-300 mt-1">
-                {nextBooking.service_name} • con <span className="text-slate-200">{nextBooking.provider_name}</span>
+              <p className="text-xl font-bold text-[#1f2a27]">{nextBooking.customer_name}</p>
+              <p className="text-sm text-[#66736e] mt-1">
+                {nextBooking.service_name} • con <span className="text-[#1f2a27] font-medium">{nextBooking.provider_name}</span>
               </p>
             </div>
             <div className="text-left sm:text-right">
-              <span className="inline-block text-lg font-bold text-emerald-300 font-mono">
+              <span className="inline-block text-lg font-bold text-[#176b5b] font-mono">
                 {formatTimeRange(nextBooking.starts_at, nextBooking.ends_at, dashboard?.timezone)}
               </span>
             </div>
@@ -212,26 +212,26 @@ export const DashboardPage: React.FC = () => {
       {/* Agenda Section */}
       <section aria-labelledby="agenda-heading" className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 id="agenda-heading" className="text-lg font-bold text-white font-serif">
+          <h2 id="agenda-heading" className="text-lg font-bold text-[#1f2a27]">
             Agenda del día
           </h2>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-[#66736e]">
             {agenda.length} {agenda.length === 1 ? 'cita' : 'citas'}
           </span>
         </div>
 
         {agenda.length === 0 ? (
-          <div className="p-12 text-center rounded-2xl bg-slate-900/50 border border-slate-800">
+          <div className="p-12 text-center rounded-2xl bg-[#fffdf9] border border-[#dfe4df]">
             <svg
-              className="w-12 h-12 mx-auto text-slate-600 mb-3"
+              className="w-12 h-12 mx-auto text-[#66736e] mb-3"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <p className="text-slate-300 font-medium text-base">No hay reservas programadas para hoy</p>
-            <p className="text-slate-500 text-xs mt-1">
+            <p className="text-[#1f2a27] font-medium text-base">No hay reservas programadas para hoy</p>
+            <p className="text-[#66736e] text-xs mt-1">
               Las nuevas reservas realizadas por clientes aparecerán aquí automáticamente.
             </p>
           </div>
@@ -242,16 +242,16 @@ export const DashboardPage: React.FC = () => {
               return (
                 <div
                   key={item.id}
-                  className="p-5 rounded-2xl bg-slate-900 border border-slate-800/80 hover:border-slate-700 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="p-5 rounded-2xl bg-[#fffdf9] border border-[#dfe4df] hover:border-[#ccd3cc] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs"
                 >
                   <div className="flex items-start sm:items-center gap-4">
-                    <div className="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700/50 text-slate-200 font-mono text-sm font-semibold shrink-0">
+                    <div className="px-3 py-1.5 rounded-xl bg-[#f0eee9] border border-[#dfe4df] text-[#1f2a27] font-mono text-sm font-semibold shrink-0">
                       {formatTimeRange(item.starts_at, item.ends_at, dashboard?.timezone)}
                     </div>
                     <div>
-                      <p className="text-base font-bold text-white">{item.customer_name}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        {item.service_name} — <span className="text-slate-300">{item.provider_name}</span>
+                      <p className="text-base font-bold text-[#1f2a27]">{item.customer_name}</p>
+                      <p className="text-xs text-[#66736e] mt-0.5">
+                        {item.service_name} — <span className="text-[#1f2a27]">{item.provider_name}</span>
                       </p>
                     </div>
                   </div>

@@ -55,7 +55,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget && !isLoading) {
           onClose();
@@ -68,13 +68,13 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         aria-modal="true"
         aria-labelledby="modal-title"
         aria-describedby="modal-description"
-        className="w-full max-w-md p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6 text-left"
+        className="w-full max-w-md p-6 rounded-2xl bg-[#fffdf9] border border-[#dfe4df] shadow-2xl space-y-6 text-left"
       >
         <div>
-          <h3 id="modal-title" className="text-xl font-bold text-white">
+          <h3 id="modal-title" className="text-xl font-bold text-[#1f2a27]">
             {title}
           </h3>
-          <p id="modal-description" className="text-sm text-slate-300 mt-2 leading-relaxed">
+          <p id="modal-description" className="text-sm text-[#66736e] mt-2 leading-relaxed">
             {description}
           </p>
         </div>
@@ -85,7 +85,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 disabled:opacity-50 transition-colors"
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-[#1f2a27] bg-[#fffdf9] border border-[#dfe4df] hover:bg-[#f0eee9] focus:outline-none focus:ring-2 focus:ring-[#176b5b] disabled:opacity-50 transition-colors"
           >
             {cancelText}
           </button>
@@ -97,8 +97,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             aria-busy={isLoading ? 'true' : undefined}
             className={`px-4 py-2.5 rounded-xl text-sm font-semibold text-white focus:outline-none focus:ring-2 disabled:opacity-50 transition-colors flex items-center gap-2 ${
               isDestructive
-                ? 'bg-rose-600 hover:bg-rose-700 focus:ring-rose-500'
-                : 'bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500'
+                ? 'bg-[#b33a3a] hover:bg-rose-800 focus:ring-rose-500'
+                : 'bg-[#176b5b] hover:bg-[#125548] focus:ring-[#176b5b]'
             }`}
           >
             {isLoading && (
