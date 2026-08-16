@@ -21,13 +21,27 @@ export class ApiError extends Error {
   }
 }
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+export function resolveApiBaseUrl(envVar?: string, isProd: boolean = false): string {
+  if (envVar !== undefined && envVar.trim() !== '') {
+    return envVar.trim().replace(/\/+$/, '');
+  }
+  return isProd ? '/api' : 'http://localhost:8000/api';
+}
+
+export function getApiBaseUrl(): string {
+  return resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL, import.meta.env.PROD);
+}
+
+export function buildApiUrl(endpoint: string, baseUrl: string = getApiBaseUrl()): string {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${baseUrl}${cleanEndpoint}`;
+}
 
 export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const url = `${BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  const url = buildApiUrl(endpoint);
   
   const headers = new Headers(options.headers);
   if (!headers.has('Content-Type') && options.body) {
@@ -39,7 +53,6 @@ export async function apiFetch<T>(
     credentials: 'include',
     headers,
   });
-
 
   const contentType = response.headers.get('content-type');
   const isJson = contentType && contentType.includes('application/json');

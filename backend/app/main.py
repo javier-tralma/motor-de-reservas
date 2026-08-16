@@ -1,10 +1,11 @@
 import uuid
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from app.api.admin import auth as admin_auth
 from app.api.admin import bookings as admin_bookings
@@ -19,7 +20,11 @@ from app.core.config import settings
 from app.core.rate_limit import RateLimitError
 from app.services.auth_service import AuthError
 
-app = FastAPI(title="Booking API")
+# Monorepo static dist path
+FRONTEND_DIST_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
+
+app = FastAPI(title="Booking API", docs_url="/docs", redoc_url="/redoc", openapi_url="/openapi.json")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.FRONTEND_URL],
@@ -28,6 +33,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 1. API routers
 app.include_router(public.router, prefix="/api")
 app.include_router(availability.router, prefix="/api")
 app.include_router(bookings.router, prefix="/api")
@@ -40,6 +46,23 @@ app.include_router(admin_time_off.router, prefix="/api/admin")
 app.include_router(admin_calendar_events.router, prefix="/api/admin")
 
 
+# 2. System endpoints
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
+
+@app.get("/health/live")
+def health_live():
+    return {"status": "ok"}
+
+
+@app.get("/health/ready")
+def health_ready():
+    return {"status": "ok"}
+
+
+# 3. Exception handlers
 @app.exception_handler(RateLimitError)
 async def rate_limit_error_handler(request: Request, exc: RateLimitError):
     headers = {}
@@ -80,7 +103,6 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 @app.exception_handler(DomainError)
 async def domain_error_handler(request: Request, exc: DomainError):
-
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": {"code": exc.code, "message": exc.message, "details": {}, "request_id": str(uuid.uuid4())}},
@@ -102,6 +124,47 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
     )
 
 
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
+# 4. SPA Fallback and Static File Handler for non-API GET requests
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_spa_fallback(full_path: str):
+    dist_dir = FRONTEND_DIST_DIR.resolve()
+
+    # Non-API / non-assets routes when frontend/dist is not built
+    if not dist_dir.is_dir():
+        raise HTTPException(
+            status_code=404,
+            detail={"code": "not_found", "message": "Ruta no encontrada (dist no disponible)."},
+        )
+
+    # Do not serve index.html for unmatched API routes
+    if full_path == "api" or full_path.startswith("api/"):
+        raise HTTPException(
+            status_code=404,
+            detail={"code": "not_found", "message": "Endpoint de API no encontrado."},
+        )
+
+    # For assets/ paths: serve if file exists, else return 404 (never index.html)
+    if full_path.startswith("assets/"):
+        candidate_asset = (dist_dir / full_path).resolve()
+        if (dist_dir in candidate_asset.parents or candidate_asset == dist_dir) and candidate_asset.is_file():
+            return FileResponse(str(candidate_asset))
+        raise HTTPException(
+            status_code=404,
+            detail={"code": "not_found", "message": "Asset estático no encontrado."},
+        )
+
+    # Check for exact root-level static files (favicon.ico, vite.svg, robots.txt)
+    if full_path:
+        candidate_file = (dist_dir / full_path).resolve()
+        if (dist_dir in candidate_file.parents or candidate_file == dist_dir) and candidate_file.is_file():
+            return FileResponse(str(candidate_file))
+
+    # SPA index.html fallback for client-side routing
+    index_file = dist_dir / "index.html"
+    if index_file.is_file():
+        return FileResponse(str(index_file))
+
+    raise HTTPException(
+        status_code=404,
+        detail={"code": "not_found", "message": "Archivo index.html no encontrado."},
+    )

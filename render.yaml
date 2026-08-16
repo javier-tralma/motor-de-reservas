@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: booking-sistema
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: .
+    buildCommand: cd frontend && npm ci && npm run build && cd ../backend && uv sync --frozen --no-dev
+    startCommand: cd backend && uv run alembic upgrade head && uv run python scripts/seed.py && uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: EMAIL_PROVIDER
+        value: resend
+      - key: DATABASE_URL
+        sync: false
+      - key: BUSINESS_ID
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: RATE_LIMIT_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_DISPLAY_NAME
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.14.0
+      - key: NODE_VERSION
+        value: 24
