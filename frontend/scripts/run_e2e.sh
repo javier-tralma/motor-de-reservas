@@ -2,6 +2,12 @@
 set -e
 
 export E2E_DATABASE_URL="postgresql+psycopg://booking_e2e_user:booking_e2e_password@127.0.0.1:5434/booking_e2e"
+export APP_ENV=e2e
+export BUSINESS_ID=00000000-0000-0000-0000-000000000001
+export FRONTEND_URL=http://127.0.0.1:4173
+export SESSION_SECRET=e2e-session-secret-key-test-32-bytes
+export RATE_LIMIT_SECRET=e2e-secret-key-test-32-bytes
+export EMAIL_PROVIDER=noop
 
 # 1. Validar URL de base de datos E2E de forma estructurada con make_url
 if ! (cd ../backend && uv run python -c "from sqlalchemy.engine import make_url; url = make_url('$E2E_DATABASE_URL'); assert url.host == '127.0.0.1' and url.port == 5434 and url.database == 'booking_e2e'" 2>/dev/null); then
@@ -60,7 +66,7 @@ echo "3. Ejecutando setup_e2e.py..."
 (cd ../backend && DATABASE_URL="$E2E_DATABASE_URL" PYTHONPATH=. uv run python scripts/setup_e2e.py)
 
 echo "4. Iniciando backend en puerto 8001..."
-(cd ../backend && APP_ENV=e2e EMAIL_PROVIDER=noop FRONTEND_URL="http://127.0.0.1:4173" SESSION_SECRET="e2e-session-secret-key-test-32-bytes" DATABASE_URL="$E2E_DATABASE_URL" RATE_LIMIT_SECRET="e2e-secret-key-test-32-bytes" PYTHONPATH=. uv run uvicorn app.main:app --host 127.0.0.1 --port 8001) &
+(cd ../backend && DATABASE_URL="$E2E_DATABASE_URL" PYTHONPATH=. uv run uvicorn app.main:app --host 127.0.0.1 --port 8001) &
 BACKEND_PID=$!
 
 echo "5. Esperando salud del backend en http://127.0.0.1:8001/health..."
