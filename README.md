@@ -195,7 +195,7 @@ El repositorio incluye el Blueprint [render.yaml](render.yaml) preparado para de
 ### Variables de Entorno de Producción Requeridas
 Configurar en el panel de Render o proveedor externo:
 - `APP_ENV`: `production`
-- `DATABASE_URL`: URL de conexión PostgreSQL de Neon (con sslmode habilitado).
+- `DATABASE_URL`: URL de conexión PostgreSQL de Neon con el formato requerido por SQLAlchemy y psycopg 3 (`postgresql+psycopg://...`). Debe conservar obligatoriamente el parámetro `sslmode=require` para la conexión cifrada a Neon.
 - `BUSINESS_ID`: UUID del negocio principal.
 - `FRONTEND_URL`: URL pública asignada (ej. `https://booking-sistema.onrender.com`).
 - `SESSION_SECRET`: Clave aleatoria de 32+ bytes para hash de sesiones.
